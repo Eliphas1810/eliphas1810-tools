@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>半角文字数計算</title>
+    </head>
+    <body>
+        <div>
+            <input type="text" id="text" size="80" />
+        </div>
+        <div id="halfWidthCount">半角文字数: 0文字</div>
+        <div id="fullWidthCount">全角文字数: 0文字</div>
+
+        <script>
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+$("text").onkeyup = function () {
+
+    var text = $("text").value;
+
+    var halfWidthCount = 0;
+
+    //ASCII文字の正規表現パターン
+    //[\u0000-\u007f]
+    //
+    //半角カタカナの正規表現パターン
+    //[｡-ﾟ]
+    //
+    //ラテン1補助、ラテン文字拡張A、ラテン文字拡張Bの正規表現パターン
+    //[\u0080-\u024F]
+    //
+    //ラテン1補助、ラテン文字拡張A、ラテン文字拡張B、以外のラテン文字のうち多くは半角文字ですが、一部、全角文字が混在しているため、非対応です。
+    var halfWidthArray = text.match(/[\u0000-\u007f｡-ﾟ\u0080-\u024F]/g);
+    if (halfWidthArray != null) {
+        halfWidthCount = halfWidthArray.length;
+    }
+
+    var fullWidthCount = text.length - halfWidthCount;
+
+    $("halfWidthCount").innerHTML = "半角文字数: " + halfWidthCount + "文字";
+    $("fullWidthCount").innerHTML = "全角文字数: " + fullWidthCount + "文字";
+};
+
+        </script>
+    </body>
+</html>

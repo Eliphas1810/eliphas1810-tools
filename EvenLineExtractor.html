@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>偶数行抽出</title>
+    </head>
+    <body>
+        <div>
+            <textarea id="originalText" cols="80" rows="10" placeholder="偶数行を抽出したい原文をここに記入してください。"></textarea>
+        </div>
+        <div>
+            <button type="button" id="extractEvenLine">偶数行を抽出</button>
+        </div>
+        <div>
+            <textarea id="evenLine" cols="80" rows="10" placeholder="偶数行がここに抽出されます。"></textarea>
+        </div>
+        <div>
+            <button type="button" id="copyEvenLine">偶数行をクリップボードにコピーする</button>
+        </div>
+        <br />
+        <br />
+        <div>
+            <textarea id="oddLine" cols="80" rows="10" placeholder="奇数行がここに抽出されます。"></textarea>
+        </div>
+        <div>
+            <button type="button" id="copyOddLine">奇数行をクリップボードにコピーする</button>
+        </div>
+
+        <script>
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+$("extractEvenLine").onclick = function () {
+
+    var originalText = $("originalText").value;
+
+    var lines = originalText.split("\n");
+
+    var evenLine = "";
+
+    var oddLine = "";
+
+    for (var index = 0; index < lines.length; index++) {
+
+        var line = lines[index];
+
+        var lineNumber = index + 1;
+
+        if (lineNumber % 2 == 0) {
+            if (evenLine.length != 0) {
+                evenLine += "\n";
+            }
+            evenLine += line;
+        } else {
+            if (oddLine.length != 0) {
+                oddLine += "\n";
+            }
+            oddLine += line;
+        }
+    }
+
+    $("evenLine").value = evenLine;
+    $("oddLine").value = oddLine;
+};
+
+$("copyEvenLine").onclick = function () {
+    navigator.clipboard.writeText($("evenLine").value);
+};
+
+$("copyOddLine").onclick = function () {
+    navigator.clipboard.writeText($("oddLine").value);
+};
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>カタカナ生成</title>
+    </head>
+    <body>
+        <div>
+            <button type="button" id="generateKatakana">カタカナ生成</button>
+        </div>
+        <div>
+            <input type="text" id="katakana" />
+        </div>
+        <div>
+            <button type="button" id="copy">クリップボードにコピーする</button>
+        </div>
+
+        <script>
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+//カタカナ一覧
+var string = "";
+string += "アイウエオ";
+string += "カキクケコ";
+string += "サシスセソ";
+string += "タチツテト";
+string += "ナニヌネノ";
+string += "ハヒフヘホ";
+string += "マミムメモ";
+string += "ヤユヨ";
+string += "ラリルレロ";
+string += "ワヲン";
+string += "ァィゥェォ";
+string += "ッ";
+string += "ャュョ";
+string += "ヴ";
+string += "ガギグゲゴ";
+string += "ザジズゼゾ";
+string += "ダヂヅデド";
+string += "バビブベボ";
+string += "パピプペポ";
+string += "ー";
+
+$("generateKatakana").onclick = function () {
+
+    var katakana = "";
+
+    //Math.random()
+    //0以上1未満の乱数の実数
+    //
+    //Math.random() * 9
+    //0以上9未満の乱数の実数
+    //
+    //Math.floor(Math.random() * 9)
+    //0以上8以下の乱数の整数
+    //
+    //Math.floor(Math.random() * 9) + 2
+    //2以上10以下の乱数の整数
+    //
+    var maxCount = Math.floor(Math.random() * 9) + 2;
+
+    for (var count = 1; count <= maxCount; count++) {
+
+        //Math.random()
+        //0以上1未満の乱数の実数
+        //
+        //Math.random() * string.length
+        //0以上カタカナ一覧の件数未満の乱数の実数
+        //
+        //Math.floor(Math.random() * string.length)
+        //0以上(カタカナ一覧の件数 - 1)以下の乱数の整数
+        //
+        var randomIndex = Math.floor(Math.random() * string.length);
+
+        katakana += string.charAt(randomIndex);
+    }
+
+    $("katakana").value = katakana;
+
+    $("katakana").select(); //テキストボックスのテキストを全選択状態にする
+};
+
+$("copy").onclick = function () {
+    navigator.clipboard.writeText($("katakana").value);
+};
+
+        </script>
+    </body>
+</html>
