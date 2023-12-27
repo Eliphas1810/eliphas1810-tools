@@ -14,7 +14,7 @@ ListColorCode.py lists RGBs in PNG image file by hexadecimal notation. it requir
 
 OpenJTalk.py reads text in textarea using OpenJTalk. it requires tkinter of Python and OpenJTalk.
 
-OpenJTalkWavMP3.py reads text in textarea and save .mp3 file using OpenJTalk. it requires tkinter and pydub of Python and OpenJTalk.
+OpenJTalkMP3.py reads text in textarea and save .mp3 file using OpenJTalk. it requires tkinter and pydub of Python and OpenJTalk.
 
 TtcToTtf.py converts a .ttc file to .ttf files. it requires tkinter of Python.
 
@@ -43,7 +43,7 @@ ListColorCode.pyでPNG画像の全カラーコードを取得できます。Pyth
 
 OpenJTalk.pyでテキストエリアのテキストをOpenJTalkで読み上げできます。OpenJTalkとPythonのtkinterが必要です。
 
-OpenJTalkWavMP3.pyでテキストエリアのテキストをOpenJTalkで読み上げできますし、MP3ファイルで保存できます。OpenJTalkとPythonのtkinterとpydubが必要です。
+OpenJTalkMP3.pyでテキストエリアのテキストをOpenJTalkで読み上げできますし、MP3ファイルで保存できます。OpenJTalkとPythonのtkinterとpydubが必要です。
 
 TtcToTtf.pyで.ttcファイルを1つ以上の.ttfファイルへ変換できます。Pythonのtkinterが必要です。
 
