@@ -2,7 +2,7 @@
 
 ## overview
 
-Tools of Eliphas1810 by Python, and JavaScript in HTML.
+Tools of Eliphas1810 by Chrome Extensions, Python, and JavaScript in HTML.
 
 *Public Domain.*
 
@@ -32,11 +32,15 @@ KatakanaGenerator.html generates Katakana text at random.
 
 RubyReplacer.html converts ruby notation of the Japanese novel site, "Narou" to the another Japanese novel site, "Kakuyomu".
 
+<br />
+
+Self-made Chrome Extensions "SelectNewTab" opens URL link by a new tab and select the new tab.
+
 ---
 
 ## 概要
 
-　Pythonと、JavaScript(とHTML)による、エリファス1810のツールです。
+　Chromeの拡張機能と、Pythonと、JavaScript(とHTML)による、エリファス1810のツールです。
 
 　*パブリック ドメインです。*
 
@@ -65,3 +69,7 @@ RubyReplacer.html converts ruby notation of the Japanese novel site, "Narou" to 
 　KatakanaGenerator.htmlで2文字以上10文字以下のカタカナをランダムに生成できます。ファンタジー小説の人物や街の名前を考えるのに役立つと思います。
 
 　RubyReplacer.htmlで「小説家になろう」の半角括弧()のルビ記法を「カクヨム」の二重山括弧《》のルビ記法に置換できます。
+
+<br />
+
+　自作のChromeの拡張機能　SelectNewTab　リンクを新しいタブで開いて選択状態にします。
