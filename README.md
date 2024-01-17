@@ -34,7 +34,7 @@ RubyReplacer.html converts ruby notation of the Japanese novel site, "Narou" to 
 
 <br />
 
-Self-made Chrome Extensions "SelectNewTab" opens URL link by a new tab and select the new tab.
+Self-made Chrome Extensions "SelectNewTab" add new context menu item. the context menu item opens URL link by a new tab and select the new tab.
 
 ---
 
@@ -72,4 +72,4 @@ Self-made Chrome Extensions "SelectNewTab" opens URL link by a new tab and selec
 
 <br />
 
-　自作のChromeの拡張機能　SelectNewTab　リンクを新しいタブで開いて選択状態にします。
+　自作のChromeの拡張機能　SelectNewTab　リンクを新しいタブで開いて選択状態にするメニュー項目をマウスの右クリック メニューに追加します。
