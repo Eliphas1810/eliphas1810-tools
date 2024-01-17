@@ -1,0 +1,8 @@
+{
+    "name": "SelectNewTab",
+    "version": "0.1.0",
+    "manifest_version": 3,
+    "description": "リンクを新しいタブで開いて選択状態にします。",
+    "permissions": ["contextMenus"],
+    "background": {"service_worker": "SelectNewTab.js"}
+}
