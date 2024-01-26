@@ -22,6 +22,10 @@ TtcToTtf.py converts a .ttc file to .ttf files. it requires tkinter of Python.
 
 VolumeUp.py turns the volume up of .mp3 file. it requires tkinter and pydub of Python.
 
+OdtRecompressor.py zips a directory of a unzipped .odt file as a mimetype file will be the first file in the zip file.
+
+TextToOdtContentXml.py convert .txt files to a content.xml in a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml.
+
 <br />
 
 EvenLineExtractor.html extracts even lines( and odd lines).
@@ -59,6 +63,10 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 　TtcToTtf.pyで.ttcファイルを1つ以上の.ttfファイルへ変換できます。Pythonのtkinterが必要です。
 
 　VolumeUp.pyでMP3ファイルの音量をアップできます。Pythonのtkinterとpydubが必要です。
+
+　OdtRecompressor.pyでLibreOfficeのWriterの.odtファイルを展開したディレクトリを再zip圧縮できます。mimetypeファイルがzipファイル内の最初のファイルと成るように再zip圧縮します。
+
+　TextToOdtContentXml.pyで1つ以上の.txtファイルを.odtファイル内のcontent.xmlに変換できます。「小説家になろう」と「カクヨム」の大体のルビをcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
 
 <br />
 
