@@ -26,6 +26,8 @@ OdtRecompressor.py zips a directory of a unzipped .odt file as a mimetype file w
 
 TextToOdtContentXml.py convert .txt files to a content.xml in a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml.
 
+JaTextToOdt.py convert .txt files to a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml in the .odt file.
+
 <br />
 
 EvenLineExtractor.html extracts even lines( and odd lines).
@@ -67,6 +69,8 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 　OdtRecompressor.pyでLibreOfficeのWriterの.odtファイルを展開したディレクトリを再zip圧縮できます。mimetypeファイルがzipファイル内の最初のファイルと成るように再zip圧縮します。
 
 　TextToOdtContentXml.pyで1つ以上の.txtファイルを.odtファイル内のcontent.xmlに変換できます。「小説家になろう」と「カクヨム」の大体のルビをcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
+
+　JaTextToOdt.pyで1つ以上の.txtファイルを.odtファイルに変換できます。「小説家になろう」と「カクヨム」の大体のルビを.odtファイル内のcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
 
 <br />
 
