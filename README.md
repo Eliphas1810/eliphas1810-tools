@@ -24,8 +24,6 @@ VolumeUp.py turns the volume up of .mp3 file. it requires tkinter and pydub of P
 
 OdtRecompressor.py zips a directory of a unzipped .odt file as a mimetype file will be the first file in the zip file.
 
-TextToOdtContentXml.py convert .txt files to a content.xml in a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml.
-
 JaTextToOdt.py convert .txt files to a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml in the .odt file.
 
 <br />
@@ -67,8 +65,6 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 　VolumeUp.pyでMP3ファイルの音量をアップできます。Pythonのtkinterとpydubが必要です。
 
 　OdtRecompressor.pyでLibreOfficeのWriterの.odtファイルを展開したディレクトリを再zip圧縮できます。mimetypeファイルがzipファイル内の最初のファイルと成るように再zip圧縮します。
-
-　TextToOdtContentXml.pyで1つ以上の.txtファイルを.odtファイル内のcontent.xmlに変換できます。「小説家になろう」と「カクヨム」の大体のルビをcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
 
 　JaTextToOdt.pyで1つ以上の.txtファイルを.odtファイルに変換できます。「小説家になろう」と「カクヨム」の大体のルビを.odtファイル内のcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
 
