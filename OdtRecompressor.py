@@ -85,6 +85,9 @@ def recompress_odt():
         if os.path.exists(os.path.join(in_dir, "mimetype")) == False:
             message_string_var.set(os.path.join(in_dir, "mimetype") + "ファイルが無いです。")
             return
+        if os.path.exists(os.path.join(in_dir, "META-INF/manifest.xml")) == False:
+            message_string_var.set(os.path.join(in_dir, "META-INF/manifest.xml") + "ファイルが無いです。")
+            return
 
         # 一時ディレクトリを作成
         temp_dir = tempfile.TemporaryDirectory()
