@@ -24,7 +24,7 @@ VolumeUp.py turns the volume up of .mp3 file. it requires tkinter and pydub of P
 
 OdtRecompressor.py zips a directory of a unzipped .odt file as a mimetype file will be the first file in the zip file.
 
-JaTextToOdt.py convert .txt files to a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml in the .odt file.
+JaTextToOdt.py converts .txt files to a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml in the .odt file.
 
 <br />
 
@@ -35,6 +35,8 @@ HalfWidthCounter.html counts almost half-width characters( and full-width charac
 KatakanaGenerator.html generates Katakana text at random.
 
 RubyReplacer.html converts ruby notation of the Japanese novel site, "Narou" to the another Japanese novel site, "Kakuyomu".
+
+JaTextToOdt.html converts .txt files to a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml in the .odt file.
 
 <br />
 
@@ -77,6 +79,8 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 　KatakanaGenerator.htmlで2文字以上10文字以下のカタカナをランダムに生成できます。ファンタジー小説の人物や街の名前を考えるのに役立つと思います。
 
 　RubyReplacer.htmlで「小説家になろう」の半角括弧()のルビ記法を「カクヨム」の二重山括弧《》のルビ記法に置換できます。
+
+　JaTextToOdt.htmlで1つ以上の.txtファイルを.odtファイルに変換できます。「小説家になろう」と「カクヨム」の大体のルビを.odtファイル内のcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
 
 <br />
 
