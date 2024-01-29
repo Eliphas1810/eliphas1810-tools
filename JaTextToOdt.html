@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>1つ以上の.txtファイルを.odtファイルに変換</title>
+
+        <!-- This application is under the "Public Domain". -->
+        <!-- This application uses "JSZip" -->
+        <!-- "JSZip" is under the "MIT License" or the "GPLv3 License". -->
+        <!-- In use of "JSZip", application developers can select "MIT License" or the "GPLv3 License". -->
+        <!-- This application uses "JSZip" under the "MIT License". -->
+
+        <!-- 当アプリケーションはパブリック ドメインです。 -->
+        <!-- 当アプリケーションはJSZipを利用しています。 -->
+        <!-- JSZipはMITライセンスかGPLv3ライセンスです。 -->
+        <!-- JSZipを利用する際にアプリケーション開発者はMITライセンスかGPLv3ライセンスを選択できます。 -->
+        <!-- 当アプリケーションはMITライセンスでJSZipを利用しています。 -->
+
+        <!-- JSZip -->
+        <!-- MIT License -->
+        <!-- Copyright (c) 2009-2016 Stuart Knightley, David Duponchel, Franz Buchinger, António Afonso -->
+        <!-- https://opensource.org/licenses/mit-license.php -->
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    </head>
+    <body>
+        <div>
+            1つ以上の.txtファイルを選択　<input type="file" id="file" accept=".txt" multiple />
+        </div>
+        <br />
+        <div>
+            文書のタイトル　<input type="text" id="title" />
+        </div>
+        <br />
+        <div>
+            セリフ フォント　<input type="text" id="serif" value="Noto Serif CJK JP" />
+        </div>
+        <br />
+        <div>
+            サン セリフ フォント　<input type="text" id="sansSerif" value="Noto Sans CJK JP" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="convertTextToOdt">1つ以上の.txtファイルを.odtファイルに変換</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <br />
+        <p>　選択した1つ以上の.txtファイルをLibreOfficeのWriterなどの.odtファイルに変換します。</p>
+        <br />
+        <p>　「文書のタイトル」に指定した名前で.odtファイルを作成します。</p>
+        <p>　例えば、「文書のタイトル」に「正法眼蔵の現代語訳」を指定した場合は、「正法眼蔵の現代語訳.odt」という名前のファイルを作成します。</p>
+        <br />
+        <p>　「文書のタイトル」に指定した名前で.odtファイル内のcontent.xmlの「タイトル」を作成します。</p>
+        <br />
+        <p>　.txtファイル名の先頭から、半角数字の連続と半角空白を除去した名前を.odtファイル内のcontent.xmlの「見出し1」にします。</p>
+        <p>　例えば、「0001 第一話.txtファイル」が存在する場合は「第一話」を「見出し1」にします。</p>
+        <br />
+        <p>　.txtファイル名の文字順で並べるので、例えば「0001 第一話.txt」、「0002 第二話.txt」のように、「半角数字の番号 順番の見出し.txt」といった規則で.txtファイル名をつけてください。</p>
+        <br />
+        <p>　.txtファイルの文字コードはUTF-8にしてください。</p>
+        <br />
+        <p>　「漢字(ひらがなかカタカナ)」を.odtファイル内のcontent.xmlのルビのXMLに置換します。</p>
+        <br />
+        <p>　「｜テキスト《ルビ》」を.odtファイル内のcontent.xmlのルビのXMLに置換します。</p>
+        <p>　上記の「｜」は全角縦線です。</p>
+        <p>　半角縦線(|)の場合は、.odtファイル内のcontent.xmlのルビのXMLに置換しません。</p>
+        <br />
+        <p>　「漢字《ひらがなかカタカナ》」を.odtファイル内のcontent.xmlのルビのXMLに置換します。</p>
+        <br />
+        <p>　空行を.odtファイル内のcontent.xmlの空行のXMLに置換します。</p>
+        <br />
+        <p>　何らかのサーバー上で動作する訳ではありません。</p>
+        <p>　あなたのパソコンやスマホなどのブラウザーが動作させます。</p>
+        <p>　動作させるには、JSZipをダウンロードするために、ネットにアクセスできる必要があります。</p>
+
+
+
+
+        <script>
+
+//In XML escape, ' must be converted to &apos; .
+function escapeXml(string) {
+    string = string.replaceAll(/&/g, "&amp;");
+    string = string.replaceAll(/"/g, "&quot;");
+    string = string.replaceAll(/'/g, "&apos;");
+    string = string.replaceAll(/</g, "&lt;");
+    string = string.replaceAll(/>/g, "&gt;");
+    return string;
+}
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+function readAsTextSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsText(file);
+    });
+}
+
+$("convertTextToOdt").onclick = async function () {
+
+    $("message").innerHTML = "";
+
+    var title = $("title").value;
+    var serif = $("serif").value;
+    var sansSerif = $("sansSerif").value;
+
+    if (title == "") {
+        $("message").innerHTML = "文書のタイトルを記入してください。";
+        return;
+    }
+    if (serif == "") {
+        $("message").innerHTML = "セリフ フォントを記入してください。";
+        return;
+    }
+    if (sansSerif == "") {
+        $("message").innerHTML = "サン セリフ フォントを記入してください。";
+        return;
+    }
+
+    var textFileArray = [];
+
+    var files = $("file").files;
+    for (var index = 0; index < files.length; index++) {
+        var file = files[index];
+
+        var name = file.name;
+        var type = file.type;
+        if (type == "text/plain") {
+            textFileArray.push(file);
+        }
+    }
+
+    textFileArray.sort();
+
+    if (textFileArray.length == 0) {
+        $("message").innerHTML = ".txtファイルを1つ以上、選択してください。";
+        return;
+    }
+
+    var jsZip = new JSZip();
+
+    jsZip.file("mimetype", "application/vnd.oasis.opendocument.text");
+
+    jsZip.file(
+        "META-INF/manifest.xml",
+        [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<manifest:manifest',
+            '    xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"',
+            '    manifest:version="1.3"',
+            '    xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"',
+            '>',
+            '    <manifest:file-entry manifest:full-path="/" manifest:version="1.3" manifest:media-type="application/vnd.oasis.opendocument.text" />',
+            '    <manifest:file-entry manifest:full-path="styles.xml" manifest:media-type="text/xml" />',
+            '    <manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml" />',
+            '</manifest:manifest>\n'
+        ].join("\n")
+    );
+
+    //content.xml
+    var contentXmlArray = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<office:document-content',
+        '    xmlns:officeooo="http://openoffice.org/2009/office"',
+        '    xmlns:css3t="http://www.w3.org/TR/css3-text/"',
+        '    xmlns:grddl="http://www.w3.org/2003/g/data-view#"',
+        '    xmlns:xhtml="http://www.w3.org/1999/xhtml"',
+        '    xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0"',
+        '    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+        '    xmlns:rpt="http://openoffice.org/2005/report"',
+        '    xmlns:dc="http://purl.org/dc/elements/1.1/"',
+        '    xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0"',
+        '    xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"',
+        '    xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"',
+        '    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"',
+        '    xmlns:oooc="http://openoffice.org/2004/calc"',
+        '    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"',
+        '    xmlns:ooow="http://openoffice.org/2004/writer"',
+        '    xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"',
+        '    xmlns:xlink="http://www.w3.org/1999/xlink"',
+        '    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"',
+        '    xmlns:ooo="http://openoffice.org/2004/office"',
+        '    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"',
+        '    xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"',
+        '    xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"',
+        '    xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"',
+        '    xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2"',
+        '    xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"',
+        '    xmlns:tableooo="http://openoffice.org/2009/table"',
+        '    xmlns:drawooo="http://openoffice.org/2010/draw"',
+        '    xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"',
+        '    xmlns:dom="http://www.w3.org/2001/xml-events"',
+        '    xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0"',
+        '    xmlns:xsd="http://www.w3.org/2001/XMLSchema"',
+        '    xmlns:math="http://www.w3.org/1998/Math/MathML"',
+        '    xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"',
+        '    xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0"',
+        '    xmlns:xforms="http://www.w3.org/2002/xforms"',
+        '    office:version="1.3"',
+        '>',
+        '    <office:scripts/>',
+        '    <office:font-face-decls>',
+        '        <style:font-face style:name="' + escapeXml(sansSerif) + '" svg:font-family="&apos;' + escapeXml(sansSerif) + '&apos;" style:font-family-generic="swiss" style:font-pitch="variable" />',
+        '        <style:font-face style:name="' + escapeXml(serif) + '" svg:font-family="&apos;' + escapeXml(serif) + '&apos;" style:font-family-generic="roman" style:font-pitch="variable"/>',
+        '        <style:font-face style:name="' + escapeXml(serif) + '" svg:font-family="&apos;' + escapeXml(serif) + '&apos;" style:font-family-generic="system" style:font-pitch="variable"/>',
+        '    </office:font-face-decls>',
+        '    <office:automatic-styles>',
+        '        <style:style style:name="P1" style:family="paragraph" style:parent-style-name="Title">',
+        '            <loext:graphic-properties draw:fill-gradient-name="gradient" draw:fill-hatch-name="hatch" />',
+        '            <style:paragraph-properties fo:line-height="1.058cm" />',
+        '            <style:text-properties style:font-name-asian="' + escapeXml(serif) + '" />',
+        '        </style:style>',
+        '        <style:style style:name="P2" style:family="paragraph" style:parent-style-name="Heading_20_1">',
+        '            <loext:graphic-properties draw:fill-gradient-name="gradient" draw:fill-hatch-name="hatch" />',
+        '            <style:paragraph-properties fo:line-height="1.058cm" fo:text-align="center" style:justify-single-word="false" />',
+        '        </style:style>',
+        '        <style:style style:name="P3" style:family="paragraph" style:parent-style-name="Standard">',
+        '            <loext:graphic-properties draw:fill-gradient-name="gradient" draw:fill-hatch-name="hatch" />',
+        '            <style:paragraph-properties fo:line-height="1.058cm" />',
+        '        </style:style>',
+        '        <style:style style:name="Ru1" style:family="ruby">',
+        '            <style:ruby-properties style:ruby-align="distribute-space" style:ruby-position="above" loext:ruby-position="above" />',
+        '            <!-- style:ruby-alignのdistribute-spaceは端に付かないルビの均等割付「121」。 -->',
+        '            <!-- style:ruby-alignのdistribute-letterは端に付くルビの均等割付「010」。 -->',
+        '        </style:style>',
+        '    </office:automatic-styles>',
+        '    <office:body>',
+        '        <office:text>',
+        '            <text:sequence-decls>',
+        '                <text:sequence-decl text:display-outline-level="0" text:name="Illustration" />',
+        '                <text:sequence-decl text:display-outline-level="0" text:name="Table" />',
+        '                <text:sequence-decl text:display-outline-level="0" text:name="Text" />',
+        '                <text:sequence-decl text:display-outline-level="0" text:name="Drawing" />',
+        '                <text:sequence-decl text:display-outline-level="0" text:name="Figure" />',
+        '            </text:sequence-decls>',
+        '',
+        '            <text:p text:style-name="P1">' + escapeXml(title) + '</text:p>',
+    ];
+    //The following is repeated the number of text files.
+    for (var index = 0; index < textFileArray.length; index++) {
+        var name = textFileArray[index].name;
+        contentXmlArray.push('');
+        contentXmlArray.push('');
+        contentXmlArray.push('');
+        contentXmlArray.push('');
+        contentXmlArray.push('            <text:p text:style-name="P3" /><!-- 空行 -->');
+        contentXmlArray.push('            <text:p text:style-name="P3" /><!-- 空行 -->');
+        contentXmlArray.push('            <text:p text:style-name="P3" /><!-- 空行 -->');
+        contentXmlArray.push('            <text:p text:style-name="P3" /><!-- 空行 -->');
+        contentXmlArray.push('');
+        contentXmlArray.push('            <text:h text:style-name="P2" text:outline-level="1">' + escapeXml(name.replace(/^[0-9]*[ 　]*|\.[tT][xX][tT]$/g, "")) + '</text:h>');
+        contentXmlArray.push('');
+        contentXmlArray.push('            <text:p text:style-name="P3" /><!-- 空行 -->');
+        contentXmlArray.push('');
+        var text = await readAsTextSync(textFileArray[index]);
+        text = text.replaceAll(/\r\n/g, "\n");
+        text = text.replaceAll(/\r/g, "\n");
+        var lineArray = text.split("\n");
+        for (var i = 0; i < lineArray.length; i++) {
+            var line = lineArray[i];
+            //If the readed line is empty,
+            if (line == "") {
+                contentXmlArray.push('            <text:p text:style-name="P3" /><!-- 空行 -->');
+            //If the readed line is the ordinary text,
+            } else {
+                //XML escape
+                var string = escapeXml(line);
+                //Kanji(HiraganaOrKatakana) is converted to a ruby of the content.xml in the .odt file.
+                string = string.replaceAll(/([一-鿋々]+)\(([ぁ-ゖァ-ヺー]+)\)/g, '<text:ruby text:style-name="Ru1"><text:ruby-base>$1</text:ruby-base><text:ruby-text>$2</text:ruby-text></text:ruby>');
+                //｜Text《Ruby》 is converted to a ruby of the content.xml in the .odt file.
+                //｜ is the "Full-width Vertical Line".
+                string = string.replaceAll(/｜([^《]+)《([^》]+)》/g, '<text:ruby text:style-name="Ru1"><text:ruby-base>$1</text:ruby-base><text:ruby-text>$2</text:ruby-text></text:ruby>');
+                //Kanji《HiraganaOrKatakana》 is converted to a ruby of the content.xml in the .odt file.
+                string = string.replaceAll(/([一-鿋々]+)《([ぁ-ゖァ-ヺー]+)》/g, '<text:ruby text:style-name="Ru1"><text:ruby-base>$1</text:ruby-base><text:ruby-text>$2</text:ruby-text></text:ruby>');
+                contentXmlArray.push('            <text:p text:style-name="P3">' + string + '</text:p>');
+            }
+        }
+    }
+    contentXmlArray.push('        </office:text>');
+    contentXmlArray.push('    </office:body>');
+    contentXmlArray.push('</office:document-content>\n');
+    jsZip.file("content.xml", contentXmlArray.join("\n"));
+
+    //styles.xml
+    jsZip.file(
+        "styles.xml",
+        [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<office:document-styles',
+            '    xmlns:officeooo="http://openoffice.org/2009/office"',
+            '    xmlns:css3t="http://www.w3.org/TR/css3-text/"',
+            '    xmlns:rpt="http://openoffice.org/2005/report"',
+            '    xmlns:dc="http://purl.org/dc/elements/1.1/"',
+            '    xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0"',
+            '    xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" ',
+            '    xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"',
+            '    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"',
+            '    xmlns:oooc="http://openoffice.org/2004/calc"',
+            '    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"',
+            '    xmlns:ooow="http://openoffice.org/2004/writer"',
+            '    xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"',
+            '    xmlns:xlink="http://www.w3.org/1999/xlink"',
+            '    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"',
+            '    xmlns:ooo="http://openoffice.org/2004/office"',
+            '    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"',
+            '    xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"',
+            '    xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"',
+            '    xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"',
+            '    xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2"',
+            '    xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"',
+            '    xmlns:tableooo="http://openoffice.org/2009/table"',
+            '    xmlns:drawooo="http://openoffice.org/2010/draw"',
+            '    xmlns:grddl="http://www.w3.org/2003/g/data-view#"',
+            '    xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"',
+            '    xmlns:dom="http://www.w3.org/2001/xml-events"',
+            '    xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0"',
+            '    xmlns:math="http://www.w3.org/1998/Math/MathML"',
+            '    xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"',
+            '    xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0"',
+            '    xmlns:xhtml="http://www.w3.org/1999/xhtml"',
+            '    office:version="1.3"',
+            '>',
+            '    <office:font-face-decls>',
+            '        <style:font-face style:name="' + escapeXml(serif) + '" svg:font-family="&apos;' + escapeXml(serif) + '&apos;" style:font-family-generic="roman" style:font-pitch="variable" />',
+            '        <style:font-face style:name="' + escapeXml(sansSerif) + '" svg:font-family="&apos;' + escapeXml(sansSerif) + '&apos;" style:font-family-generic="swiss" style:font-pitch="variable" />',
+            '        <style:font-face style:name="' + escapeXml(serif) + '" svg:font-family="&apos;' + escapeXml(serif) + '&apos;" style:font-family-generic="system" style:font-pitch="variable" />',
+            '    </office:font-face-decls>',
+            '    <office:styles>',
+            '        <draw:gradient draw:name="gradient" draw:style="linear" draw:start-color="#000000" draw:end-color="#ffffff" draw:start-intensity="100%" draw:end-intensity="100%" draw:angle="0deg" draw:border="0%" />',
+            '        <draw:hatch draw:name="hatch" draw:style="single" draw:color="#3465a4" draw:distance="0.02cm" draw:rotation="0" />',
+            '        <style:default-style style:family="graphic">',
+            '            <style:graphic-properties',
+            '                svg:stroke-color="#3465a4"',
+            '                draw:fill-color="#729fcf"',
+            '                fo:wrap-option="no-wrap"',
+            '                draw:shadow-offset-x="0.3cm"',
+            '                draw:shadow-offset-y="0.3cm"',
+            '                draw:start-line-spacing-horizontal="0.283cm"',
+            '                draw:start-line-spacing-vertical="0.283cm"',
+            '                draw:end-line-spacing-horizontal="0.283cm"',
+            '                draw:end-line-spacing-vertical="0.283cm"',
+            '                style:flow-with-text="false"',
+            '            />',
+            '            <style:paragraph-properties',
+            '                style:text-autospace="ideograph-alpha"',
+            '                style:line-break="strict"',
+            '                style:writing-mode="lr-tb"',
+            '                style:font-independent-line-spacing="false"',
+            '            >',
+            '                <style:tab-stops />',
+            '            </style:paragraph-properties>',
+            '            <style:text-properties',
+            '                style:use-window-font-color="true"',
+            '                loext:opacity="0%"',
+            '                style:font-name="' + escapeXml(serif) + '"',
+            '                fo:font-size="14pt"',
+            '                fo:language="en"',
+            '                fo:country="US"',
+            '                style:letter-kerning="true"',
+            '                style:font-name-asian="' + escapeXml(serif) + '"',
+            '                style:font-size-asian="14pt"',
+            '                style:language-asian="ja"',
+            '                style:country-asian="JP"',
+            '                style:font-name-complex="' + escapeXml(serif) + '"',
+            '                style:font-size-complex="14pt"',
+            '                style:language-complex="hi"',
+            '                style:country-complex="IN"',
+            '            />',
+            '        </style:default-style>',
+            '        <style:default-style style:family="paragraph">',
+            '            <style:paragraph-properties',
+            '                fo:orphans="2"',
+            '                fo:widows="2"',
+            '                fo:hyphenation-ladder-count="no-limit"',
+            '                style:text-autospace="ideograph-alpha"',
+            '                style:punctuation-wrap="hanging"',
+            '                style:line-break="strict"',
+            '                style:tab-stop-distance="1.251cm"',
+            '                style:writing-mode="page"',
+            '            />',
+            '            <style:text-properties',
+            '                style:use-window-font-color="true"',
+            '                loext:opacity="0%"',
+            '                style:font-name="' + escapeXml(serif) + '"',
+            '                fo:font-size="14pt"',
+            '                fo:language="en"',
+            '                fo:country="US"',
+            '                style:letter-kerning="true"',
+            '                style:font-name-asian="' + escapeXml(serif) + '"',
+            '                style:font-size-asian="14pt"',
+            '                style:language-asian="ja"',
+            '                style:country-asian="JP"',
+            '                style:font-name-complex="' + escapeXml(serif) + '"',
+            '                style:font-size-complex="14pt"',
+            '                style:language-complex="hi"',
+            '                style:country-complex="IN"',
+            '            />',
+            '        </style:default-style>',
+            '        <style:default-style style:family="table">',
+            '            <style:table-properties table:border-model="collapsing" />',
+            '        </style:default-style>',
+            '        <style:default-style style:family="table-row">',
+            '            <style:table-row-properties fo:keep-together="auto" />',
+            '        </style:default-style>',
+            '        <style:style style:name="Standard" style:family="paragraph" style:class="text" />',
+            '        <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="text">',
+            '            <style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" style:contextual-spacing="false" fo:keep-with-next="always" />',
+            '            <style:text-properties',
+            '                style:font-name="' + escapeXml(sansSerif) + '"',
+            '                fo:font-family="&apos;' + escapeXml(sansSerif) + '&apos;"',
+            '                style:font-family-generic="swiss"',
+            '                style:font-pitch="variable"',
+            '                fo:font-size="14pt"',
+            '                style:font-name-asian="' + escapeXml(serif) + '"',
+            '                style:font-family-asian="&apos;' + escapeXml(serif) + '&apos;"',
+            '                style:font-family-generic-asian="system"',
+            '                style:font-pitch-asian="variable"',
+            '                style:font-size-asian="14pt"',
+            '            />',
+            '        </style:style>',
+            '        <style:style',
+            '            style:name="Text_20_body"',
+            '            style:display-name="Text body"',
+            '            style:family="paragraph"',
+            '            style:parent-style-name="Standard"',
+            '            style:class="text"',
+            '        >',
+            '            <style:paragraph-properties',
+            '                fo:margin-top="0cm"',
+            '                fo:margin-bottom="0.247cm"',
+            '                style:contextual-spacing="false"',
+            '                fo:line-height="115%"',
+            '            />',
+            '        </style:style>',
+            '        <style:style style:name="List" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="list">',
+            '            <style:text-properties style:font-size-asian="14pt" style:font-name-complex="' + escapeXml(sansSerif) + '" style:font-family-complex="' + escapeXml(sansSerif) + '" style:font-family-generic-complex="swiss" />',
+            '        </style:style>',
+            '        <style:style style:name="Caption" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">',
+            '            <style:paragraph-properties fo:margin-top="0.212cm" fo:margin-bottom="0.212cm" style:contextual-spacing="false" text:number-lines="false" text:line-number="0" />',
+            '            <style:text-properties fo:font-size="14pt" fo:font-style="italic" style:font-size-asian="14pt" style:font-style-asian="italic" style:font-name-complex="' + escapeXml(sansSerif) + '" style:font-family-complex="' + escapeXml(sansSerif) + '" style:font-family-generic-complex="swiss" style:font-size-complex="14pt" style:font-style-complex="italic" />',
+            '        </style:style>',
+            '        <style:style style:name="Index" style:family="paragraph" style:parent-style-name="Standard" style:class="index">',
+            '            <style:paragraph-properties text:number-lines="false" text:line-number="0" />',
+            '            <style:text-properties style:font-size-asian="14pt" style:font-name-complex="' + escapeXml(sansSerif) + '" style:font-family-complex="' + escapeXml(sansSerif) + '" style:font-family-generic-complex="swiss" />',
+            '        </style:style>',
+            '        <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:class="chapter">',
+            '            <style:paragraph-properties fo:text-align="center" style:justify-single-word="false" />',
+            '            <style:text-properties fo:font-size="28pt" fo:font-weight="bold" style:font-size-asian="28pt" style:font-weight-asian="bold" style:font-size-complex="28pt" style:font-weight-complex="bold" />',
+            '        </style:style>',
+            '        <style:style style:name="Heading_20_1" style:display-name="Heading 1" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="1" style:class="text">',
+            '            <style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" style:contextual-spacing="false" />',
+            '            <style:text-properties fo:font-size="18pt" fo:font-weight="bold" style:font-size-asian="18pt" style:font-weight-asian="bold" style:font-size-complex="18pt" style:font-weight-complex="bold" />',
+            '        </style:style>',
+            '        <style:style style:name="Rubies" style:family="text">',
+            '            <style:text-properties fo:font-size="6pt" style:text-underline-style="none" style:font-size-asian="6pt" style:font-size-complex="6pt" style:text-emphasize="none" />',
+            '        </style:style>',
+            '        <text:outline-style style:name="Outline">',
+            '            <text:outline-level-style text:level="1" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="2" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="3" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="4" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="5" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="6" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="7" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="8" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="9" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '            <text:outline-level-style text:level="10" style:num-format="">',
+            '                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">',
+            '                    <style:list-level-label-alignment text:label-followed-by="listtab" />',
+            '                </style:list-level-properties>',
+            '            </text:outline-level-style>',
+            '        </text:outline-style>',
+            '        <text:notes-configuration text:note-class="footnote" style:num-format="1" text:start-value="0" text:footnotes-position="page" text:start-numbering-at="document" />',
+            '        <text:notes-configuration text:note-class="endnote" style:num-format="i" text:start-value="0" />',
+            '        <text:linenumbering-configuration text:number-lines="false" text:offset="0.499cm" style:num-format="1" text:number-position="left" text:increment="5" />',
+            '    </office:styles>',
+            '    <office:automatic-styles>',
+            '        <style:page-layout style:name="Mpm1">',
+            '            <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2cm" fo:margin-right="2cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm" loext:margin-gutter="0cm">',
+            '                <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:line-style="solid" style:adjustment="left" style:rel-width="25%" style:color="#000000" />',
+            '            </style:page-layout-properties>',
+            '            <style:header-style />',
+            '            <style:footer-style />',
+            '        </style:page-layout>',
+            '    </office:automatic-styles>',
+            '    <office:master-styles>',
+            '        <style:master-page style:name="Standard" style:page-layout-name="Mpm1" />',
+            '    </office:master-styles>',
+            '</office:document-styles>\n'
+        ].join("\n")
+    );
+
+    jsZip.generateAsync({type:"blob"}).then(function (data) {
+        var url = URL.createObjectURL(data);
+
+        var aTagElement = document.createElement("a");
+        aTagElement.href = url;
+        aTagElement.download = (title + ".odt");
+
+        aTagElement.click();
+
+        URL.revokeObjectURL(url);
+    });
+
+    $("message").innerHTML = "1つ以上の.txtファイルから.odtファイルへの変換が完了しました。";
+};
+
+        </script>
+    </body>
+</html>
