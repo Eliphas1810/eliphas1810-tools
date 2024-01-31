@@ -39,16 +39,6 @@ function readAsArrayBufferSync(file) {
 }
 
 
-function readAsTextSync(file) {
-    return new Promise(function (resolve, reject) {
-        var fileReader = new FileReader();
-        fileReader.onload = function () { resolve(fileReader.result); };
-        fileReader.onerror = function () { reject(fileReader.error); };
-        fileReader.readAsText(file);
-    });
-}
-
-
 function crc32(array) {
     /*
     var crc32Table = [];
