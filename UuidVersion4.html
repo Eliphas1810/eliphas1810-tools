@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>UUIDバージョン4生成</title>
+    </head>
+    <body>
+        <div>
+            <button type="button" id="generateUuidVersion4">UUIDバージョン4を生成</button>
+        </div>
+        <br />
+        <div>
+            UUIDバージョン4　<input type="text" id="uuidVersion4" size="60" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="copyUuidVersion4">クリップボードにコピー</button>
+        </div>
+
+
+        <script>
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function uuidVersion4() {
+
+    //128bit = 16Byteの乱数を生成
+    var uuidVersion4Uint8Array = new Uint8Array(16);
+    crypto.getRandomValues(uuidVersion4Uint8Array);
+
+    //RFC4122のvariantを表すために、9バイト目の2進数の4の位に0を、8の位に1を設定
+    //2進数の下2桁は乱数のまま
+    uuidVersion4Uint8Array[8] = (uuidVersion4Uint8Array[8] & 0x3F) | 0x80;
+
+    //7バイト目の2進数の下4桁であるUUIDのバージョン ビットにバージョン4の4を設定
+    uuidVersion4Uint8Array[6] = (uuidVersion4Uint8Array[6] & 0x0F) | 0x40;
+
+    var uuidVersion4String = "";
+    for (var index = 0; index < uuidVersion4Uint8Array.length; index++) {
+        uuidVersion4String = uuidVersion4String + uuidVersion4Uint8Array[index].toString(16).toUpperCase();
+
+        switch (index) {
+            case 3:
+            case 5:
+            case 7:
+            case 9:
+                uuidVersion4String = uuidVersion4String + "-";
+                break;
+            default:
+        }
+    }
+
+    return uuidVersion4String;
+}
+
+
+$("generateUuidVersion4").onclick = function () {
+    $("uuidVersion4").value = uuidVersion4();
+};
+
+
+$("copyUuidVersion4").onclick = function () {
+    navigator.clipboard.writeText($("uuidVersion4").value);
+};
+
+
+        </script>
+    </body>
+</html>
