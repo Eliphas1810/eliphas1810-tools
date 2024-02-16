@@ -38,6 +38,12 @@ RubyReplacer.html converts ruby notation of the Japanese novel site, "Narou" to 
 
 JaTextToOdt.html converts .txt files to a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml in the .odt file.
 
+Crc32.html calculates CRC32.
+
+StoredZip.html zips files by "STORED" of zip.
+
+UuidVersion4.html generates UUID Version 4.
+
 <br />
 
 Self-made Chrome Extensions "SelectNewTab" add new context menu item. the context menu item opens URL link by a new tab and select the new tab.
@@ -81,6 +87,12 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 　RubyReplacer.htmlで「小説家になろう」の半角括弧()のルビ記法を「カクヨム」の二重山括弧《》のルビ記法に置換できます。
 
 　JaTextToOdt.htmlで1つ以上の.txtファイルを.odtファイルに変換できます。「小説家になろう」と「カクヨム」の大体のルビを.odtファイル内のcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
+
+　Crc32.htmlでzip圧縮などに必要なCRC32を計算できます。
+
+　StoredZip.htmlで無圧縮(STORED)でzip圧縮できます。
+
+　UuidVersion4.htmlでUUID Version 4を生成できます。
 
 <br />
 
