@@ -25,6 +25,12 @@
         <div>
             <button type="button" id="copyOddLine">奇数行をクリップボードにコピーする</button>
         </div>
+        <br />
+        <br />
+        <div>
+            <button type="button" id="clear">文を消去する</button>
+        </div>
+
 
         <script>
 
@@ -71,6 +77,12 @@ $("copyEvenLine").onclick = function () {
 
 $("copyOddLine").onclick = function () {
     navigator.clipboard.writeText($("oddLine").value);
+};
+
+$("clear").onclick = function () {
+    $("originalText").value = "";
+    $("evenLine").value = "";
+    $("oddLine").value = "";
 };
 
         </script>
