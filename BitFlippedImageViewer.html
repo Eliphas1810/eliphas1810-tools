@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転画像ビューアー</title>
+        <style>
+img {
+    width: 100%;
+}
+        </style>
+    </head>
+    <body>
+        <div>
+            ビット反転画像ファイル選択　<input type="file" id="file" multiple />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="showBitFlippedImage">ビット反転画像表示</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <div id="images"></div>
+
+
+        <script>
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+
+$("showBitFlippedImage").onclick = async function () {
+
+    var files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "ビット反転画像ファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "ビット反転画像ファイルを処理中です……。";
+
+    $("images").innerHTML = "";
+
+    for (var index = 0; index < files.length; index++) {
+
+        var file = files[index];
+
+        var arrayBuffer = await readAsArrayBufferSync(file);
+        var size = arrayBuffer.byteLength;
+        var dataView = new DataView(arrayBuffer);
+
+        //ビット反転してからJavaScriptの「バイナリー文字列」に変換
+        var jsBinaryString = "";
+        for (var byteIndex = 0; byteIndex < size; byteIndex++) {
+            jsBinaryString += String.fromCharCode(((~ dataView.getUint8(byteIndex)) >>> 0) & 0xff)
+        }
+
+        var divElement = document.createElement("div");
+
+        var imageElement = document.createElement("img");
+
+        var fileName = file.name;
+        if (fileName.match(/[^a-z]png[^a-z]/gi) != null) {
+            imageElement.src = "data:image/png;base64," + btoa(jsBinaryString);
+        } else {
+            imageElement.src = "data:image/jpeg;base64," + btoa(jsBinaryString);
+        }
+
+        divElement.appendChild(imageElement);
+
+        $("images").appendChild(divElement);
+    }
+
+    $("message").innerHTML = "";
+};
+
+
+        </script>
+    </body>
+</html>

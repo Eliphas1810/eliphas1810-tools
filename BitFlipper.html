@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転</title>
+    </head>
+    <body>
+        <div>
+            ファイル選択　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="flipBit">ビット反転</button>
+        </div>
+        <br />
+        <br />
+        <p id="message"></p>
+
+
+        <script>
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+
+$("flipBit").onclick = async function () {
+
+    var files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "ビット反転するファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "ビット反転中です……。";
+
+    var file = files[0];
+
+    var outFileName = file.name;
+
+    if (outFileName.match(/^.+\.bin$/gi) != null) {
+        outFileName = outFileName.replace(/\.bin$/gi, "");
+    } else {
+        outFileName = outFileName + ".bin";
+    }
+
+    var arrayBuffer = await readAsArrayBufferSync(file);
+    var size = arrayBuffer.byteLength;
+    var dataView = new DataView(arrayBuffer);
+
+    for (var byteIndex = 0; byteIndex < size; byteIndex++) {
+        dataView.setUint8(byteIndex, (~ dataView.getUint8(byteIndex)) >>> 0, /* リトル エンディアン */ true);
+    }
+
+    var blob = new Blob([new Uint8Array(arrayBuffer)], {type: "application/zip"});
+
+    var url = URL.createObjectURL(blob);
+
+    var aTagElement = document.createElement("a");
+    aTagElement.href = url;
+    aTagElement.download = outFileName;
+    aTagElement.click();
+
+    URL.revokeObjectURL(url);
+
+    $("message").innerHTML = "ビット反転を完了しました。";
+};
+
+
+        </script>
+    </body>
+</html>
