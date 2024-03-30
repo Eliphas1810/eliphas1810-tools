@@ -17,7 +17,7 @@ in_file_label.place(x=10, y=40)
 # 入力ファイル選択ボタンが押された時の処理
 def select_in_file():
     try:
-        in_file_string_var.set(filedialog.askopenfilename(initialdir=os.path.expanduser("~"), multiple=False, filetypes=[("zipファイル", ".zip"), ("テキスト ファイル", ".txt"), ("ブラウザのブックマーク", ".json"), ("バイナリー ファイル", ".bin")]))
+        in_file_string_var.set(filedialog.askopenfilename(initialdir=os.path.expanduser("~"), multiple=False, filetypes=[("zipファイル", ".zip"), ("テキスト ファイル", ".txt"), ("ブラウザのブックマーク", ".json"), ("バイナリー ファイル", ".bin"), ("全ての種類のファイル", "*")]))
     except Exception as exception:
         messagebox.showerror(exception.__class__.__name__, str(exception))
         raise
