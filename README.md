@@ -26,6 +26,8 @@ OdtRecompressor.py zips a directory of a unzipped .odt file as a mimetype file w
 
 JaTextToOdt.py converts .txt files to a .odt file, converting rubys of Japanese novel web sites to xml snippets of rubys of content.xml in the .odt file.
 
+BitFlipper.py flips all bit of a file.
+
 <br />
 
 EvenLineExtractor.html extracts even lines( and odd lines).
@@ -43,6 +45,10 @@ Crc32.html calculates CRC32.
 StoredZip.html zips files by "STORED" of zip.
 
 UuidVersion4.html generates UUID Version 4.
+
+BitFlipper.html flips all bit of a file.
+
+BitFlippedImageViewer.html show images of bit flipped image files.
 
 <br />
 
@@ -76,6 +82,8 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 
 　JaTextToOdt.pyで1つ以上の.txtファイルを.odtファイルに変換できます。「小説家になろう」と「カクヨム」の大体のルビを.odtファイル内のcontent.xmlのルビのXMLに変換します。「小説家になろう」と「カクヨム」の半角縦線(|)のルビには対応していません。
 
+　BitFlipper.pyで1つのファイルの全てのビットを反転できます。
+
 <br />
 
 　EvenLineExtractor.htmlでテキストエリアのテキストの偶数行(と奇数行)を抽出できます。
@@ -93,6 +101,10 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 　StoredZip.htmlで無圧縮(STORED)でzip圧縮できます。
 
 　UuidVersion4.htmlでUUID Version 4を生成できます。
+
+　BitFlipper.htmlで1つのファイルの全てのビットを反転できます。
+
+　BitFlippedImageViewer.htmlで全てのビットが反転されている画像ファイルをビットを反転し直して表示できます。
 
 <br />
 
