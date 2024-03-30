@@ -64,7 +64,7 @@ $("flipBit").onclick = async function () {
         dataView.setUint8(byteIndex, (~ dataView.getUint8(byteIndex)) >>> 0, /* リトル エンディアン */ true);
     }
 
-    var blob = new Blob([new Uint8Array(arrayBuffer)], {type: "application/zip"});
+    var blob = new Blob([new Uint8Array(arrayBuffer)], {type: "application/octet-stream"});
 
     var url = URL.createObjectURL(blob);
 
