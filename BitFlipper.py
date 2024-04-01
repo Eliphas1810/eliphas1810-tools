@@ -8,6 +8,8 @@ root = tkinter.Tk()
 root.geometry("800x300")
 root.title("ビット反転")
 
+in_file_paths = ()
+
 in_file_string_var = tkinter.StringVar()
 in_file_string_var.set("")
 
@@ -17,7 +19,9 @@ in_file_label.place(x=10, y=40)
 # 入力ファイル選択ボタンが押された時の処理
 def select_in_file():
     try:
-        in_file_string_var.set(filedialog.askopenfilename(initialdir=os.path.expanduser("~"), multiple=False, filetypes=[("zipファイル", ".zip"), ("テキスト ファイル", ".txt"), ("ブラウザのブックマーク", ".json"), ("バイナリー ファイル", ".bin"), ("全ての種類のファイル", "*")]))
+        global in_file_paths
+        in_file_paths = filedialog.askopenfilename(initialdir=os.path.expanduser("~"), multiple=True, filetypes=[("全ての種類のファイル", "*")])
+        in_file_string_var.set(" ".join(in_file_paths))
     except Exception as exception:
         messagebox.showerror(exception.__class__.__name__, str(exception))
         raise
@@ -52,11 +56,10 @@ message_label.place(x=10, y=180)
 def flip_bit():
     try:
 
-        in_file = in_file_string_var.get()
         out_dir = out_dir_string_var.get()
 
-        if in_file == "":
-            message_string_var.set("入力ファイルを選択してください。")
+        if len(in_file_paths) == 0:
+            message_string_var.set("入力ファイルを1つ以上、選択してください。")
             return
 
         if out_dir == "":
@@ -65,29 +68,36 @@ def flip_bit():
 
         message_string_var.set("ビット反転中です……。")
 
-        in_file_name = os.path.basename(in_file)
+        out_file_paths = []
 
-        out_file_name = ""
-        if re.match("^.+\.[bB][iI][nN]$", in_file_name):
-            out_file_name = re.sub("\.[bB][iI][nN]$", "", in_file_name)
-        else:
-            out_file_name = in_file_name + ".bin"
+        for in_file_path in in_file_paths:
 
-        with open(os.path.join(out_dir, out_file_name), "wb") as file:
-            with open(in_file, "rb") as f:
+            in_file_name = os.path.basename(in_file_path)
 
-                while True:
-                    bytes = f.read(1024)
-                    read_byte_size = len(bytes)
-                    if read_byte_size == 0:
-                        break
+            out_file_name = ""
+            if re.match("^.+\.[bB][iI][nN]$", in_file_name):
+                out_file_name = re.sub("\.[bB][iI][nN]$", "", in_file_name)
+            else:
+                out_file_name = in_file_name + ".bin"
 
-                    # ビットを反転
-                    integer = ~ int.from_bytes(bytes, byteorder="little", signed=True)
+            with open(os.path.join(out_dir, out_file_name), "wb") as file:
+                with open(in_file_path, "rb") as f:
 
-                    file.write(integer.to_bytes(read_byte_size, byteorder="little", signed=True))
+                    while True:
+                        bytes = f.read(1024)
+                        read_byte_size = len(bytes)
+                        if read_byte_size == 0:
+                            break
 
-        message_string_var.set("ビット反転が完了しました。" + os.path.join(out_dir, out_file_name))
+                        # ビットを反転
+                        integer = ~ int.from_bytes(bytes, byteorder="little", signed=True)
+
+                        file.write(integer.to_bytes(read_byte_size, byteorder="little", signed=True))
+
+            out_file_paths.append(os.path.join(out_dir, out_file_name))
+
+
+        message_string_var.set("ビット反転が完了しました。" + " ".join(out_file_paths))
 
     except Exception as exception:
         messagebox.showerror(exception.__class__.__name__, str(exception))
