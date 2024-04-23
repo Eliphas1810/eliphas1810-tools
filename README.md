@@ -54,6 +54,10 @@ BitFlippedImageViewer.html show images of bit flipped image files.
 
 Self-made Chrome Extensions "SelectNewTab" add new context menu item. the context menu item opens URL link by a new tab and select the new tab.
 
+<br />
+
+BitFlippedImageViewer.apk show images of bit flipped image files on android.
+
 ---
 
 ## 概要
@@ -109,3 +113,7 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 <br />
 
 　自作のChromeの拡張機能　SelectNewTab　リンクを新しいタブで開いて選択状態にするメニュー項目をマウスの右クリック メニューに追加します。
+
+<br />
+
+　BitFlippedImageViewer.apkは全てのビットが反転されている画像ファイルをビットを反転し直して表示できるアンドロイドのスマホのアプリです。
