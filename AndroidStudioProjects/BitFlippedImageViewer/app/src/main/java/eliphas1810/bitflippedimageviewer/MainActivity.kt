@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
                     uriList.add(uri!!)
                 }
 
-            //1つ以下のファイルが選択された場合
+                //1つ以下のファイルが選択された場合
             } else {
 
                 if (intent?.data != null) {
@@ -46,6 +46,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+            valueCallback?.onReceiveValue(uriList.toTypedArray())
+        }
+
+        if (activityResult.resultCode == RESULT_CANCELED) {
+            var uriList = mutableListOf<Uri>()
             valueCallback?.onReceiveValue(uriList.toTypedArray())
         }
     }
