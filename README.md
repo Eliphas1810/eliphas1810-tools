@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tools of Eliphas1810 by Chrome Extensions, Python, and JavaScript in HTML.
+Tools of Eliphas1810 by Chrome Extensions, Python, .apk of Android Appli, and JavaScript in HTML.
 
 *Public Domain.*
 
@@ -48,7 +48,11 @@ UuidVersion4.html generates UUID Version 4.
 
 BitFlipper.html flips all bit of a file.
 
+KatakanaExtractor.html extracts Katakana words.
+
 BitFlippedImageViewer.html show images of bit flipped image files.
+
+BitFlippedMoviePlayer.html play a movie of bit flipped .mp4 files.
 
 <br />
 
@@ -58,11 +62,13 @@ Self-made Chrome Extensions "SelectNewTab" add new context menu item. the contex
 
 BitFlippedImageViewer.apk show images of bit flipped image files on android.
 
+BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
+
 ---
 
 ## 概要
 
-　Chromeの拡張機能と、Pythonと、JavaScript(とHTML)による、エリファス1810のツールです。
+　Chromeの拡張機能と、Pythonと、アンドロイドのスマホのアプリの.apkファイルと、JavaScript(とHTML)による、エリファス1810のツールです。
 
 　*パブリック ドメインです。*
 
@@ -108,7 +114,11 @@ BitFlippedImageViewer.apk show images of bit flipped image files on android.
 
 　BitFlipper.htmlで1つのファイルの全てのビットを反転できます。
 
+　KatakanaExtractor.htmlでテキストエリアのテキストの連続しているカタカナを抽出できます。
+
 　BitFlippedImageViewer.htmlで全てのビットが反転されている画像ファイルをビットを反転し直して表示できます。
+
+　BitFlippedMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できます。
 
 <br />
 
@@ -117,3 +127,5 @@ BitFlippedImageViewer.apk show images of bit flipped image files on android.
 <br />
 
 　BitFlippedImageViewer.apkは全てのビットが反転されている画像ファイルをビットを反転し直して表示できるアンドロイドのスマホのアプリです。
+
+　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できるアンドロイドのスマホのアプリです。
