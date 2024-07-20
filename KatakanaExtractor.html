@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>カタカナ抽出</title>
+
+        <!-- Public Domain -->
+
+    </head>
+    <body>
+        <div>
+            <textarea id="text" cols="80" rows="10" placeholder="カタカナを抽出したい文をここに記入してください。"></textarea>
+        </div>
+        <br />
+        <div>
+            <button type="button" id="extractKatakana">カタカナ抽出</button>
+        </div>
+        <br />
+        <div>
+            <textarea id="katakana" cols="80" rows="10" placeholder="抽出されたカタカナがここに書き込まれます。"></textarea>
+        </div>
+        <br />
+        <br />
+        <div>
+            <button type="button" id="clear">文を消去する</button>
+        </div>
+
+
+        <script>
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+$("extractKatakana").onclick = function () {
+
+    var text = $("text").value;
+
+    var katakanaArray = text.match(/[ァ-ヺー][ァ-ヺー 　]*/g);
+
+    katakanaArray = Array.from(new Set(katakanaArray));
+
+    katakanaArray.sort();
+
+    $("katakana").value = katakanaArray.join("\n");
+};
+
+
+$("clear").onclick = function () {
+    $("text").value = "";
+    $("katakana").value = "";
+};
+
+
+        </script>
+    </body>
+</html>
