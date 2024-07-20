@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転動画プレイヤー</title>
+    </head>
+    <body>
+        <div>
+            ビット反転動画ファイル選択　<input type="file" id="file" multiple />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="showBitFlippedMovie">ビット反転動画表示</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <div id="videos"></div>
+
+
+        <script>
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+
+$("showBitFlippedMovie").onclick = async function () {
+
+    var files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "ビット反転動画ファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "ビット反転動画ファイルを処理中です……。";
+
+    $("videos").innerHTML = "";
+
+    for (var index = 0; index < files.length; index++) {
+
+        var file = files[index];
+
+        var arrayBuffer = await readAsArrayBufferSync(file);
+        var size = arrayBuffer.byteLength;
+        var dataView = new DataView(arrayBuffer);
+
+        //ビット反転してからJavaScriptの「バイナリー文字列」に変換
+        var jsBinaryString = "";
+        for (var byteIndex = 0; byteIndex < size; byteIndex++) {
+            jsBinaryString += String.fromCharCode(((~ dataView.getUint8(byteIndex)) >>> 0) & 0xff)
+        }
+
+        var divElement = document.createElement("div");
+
+        var brElement = document.createElement("br");
+
+        var videoElement = document.createElement("video");
+
+        videoElement.width = "500";
+        videoElement.controls = "controls";
+        videoElement.src = "data:video/mp4;base64," + btoa(jsBinaryString);
+
+        divElement.appendChild(brElement);
+        divElement.appendChild(videoElement);
+
+        $("videos").appendChild(divElement);
+    }
+
+    $("message").innerHTML = "";
+};
+
+
+        </script>
+    </body>
+</html>
