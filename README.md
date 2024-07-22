@@ -118,7 +118,7 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 　BitFlipper.htmlで1つのファイルの全てのビットを反転できます。
 
-　KatakanaExtractor.htmlでテキストエリアのテキストの連続しているカタカナを抽出できます。
+　KatakanaExtractor.htmlでテキストエリアのテキストの連続しているカタカナを、同じ複数の物を1つだけにして、アイウエオ順に抽出できます。カタカナの誤字脱字を見つけやすくします。
 
 　BitFlippedImageViewer.htmlで全てのビットが反転されている画像ファイルをビットを反転し直して表示できます。
 
