@@ -15,6 +15,7 @@ import javax.xml.parsers.SAXParser;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.SAXParseException;
 
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ import java.util.zip.ZipEntry;
 
 import java.io.ByteArrayInputStream;
 
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -34,6 +36,22 @@ import java.io.PrintWriter;
 
 class Main {
     public static void main(String[] args) throws Exception {
+
+
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+
+        //saxParserFactory.setNamespaceAware(true);
+        //saxParserFactory.setValidating(true);
+
+        SAXParser saxParser = saxParserFactory.newSAXParser();
+
+        //saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
+        //saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "xhtml1-strict.xsd");
+        //ちなみに、
+        //
+        //http://java.sun.com/xml/jaxp/properties/schemaLanguageにDTDは無い。
+        //
+        //Public Domainの(X)HTMLの.xsdファイルは無いようなので自作する必要が有る。
 
 
         JFrame frame = new JFrame();
@@ -54,7 +72,7 @@ class Main {
         epubSelectButton.setLocation(10, 10); //座標を指定
         container.add(epubSelectButton);
 
-        //読み込みディレクトリ選択ボタンが押された時の処理
+        //電子書籍(ePub)ファイル選択ボタンが押された時の処理
         epubSelectButton.addActionListener(
             actionEvent -> {
                 JFileChooser fileChooser = new JFileChooser();
@@ -71,12 +89,12 @@ class Main {
         outDirLabel.setLocation(10, 90); //座標を指定
         container.add(outDirLabel);
 
-        JButton outDirSelectButton = new JButton("エラーチェック結果テキストファイル書き込みディレクトリ選択");
+        JButton outDirSelectButton = new JButton("エラーメッセージファイル書き込みディレクトリ選択");
         outDirSelectButton.setSize(480, 20);
         outDirSelectButton.setLocation(10, 60); //座標を指定
         container.add(outDirSelectButton);
 
-        //書き込みディレクトリ選択ボタンが押された時の処理
+        //エラーメッセージファイル書き込みディレクトリ選択ボタンが押された時の処理
         outDirSelectButton.addActionListener(
             actionEvent -> {
                 JFileChooser fileChooser = new JFileChooser();
@@ -94,7 +112,7 @@ class Main {
         checkEPubButton.setLocation(10, 140); //座標を指定
         container.add(checkEPubButton);
 
-        //電子書籍(ePub)作成ボタンが押された時の処理
+        //電子書籍(ePub)ファイル内の(X)HTMLファイルのエラーチェックボタンが押された時の処理
         checkEPubButton.addActionListener(actionEvent -> {
             try {
 
@@ -107,7 +125,7 @@ class Main {
                 }
 
                 if (outDir.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "エラーチェック結果テキストファイル書き込みディレクトリを選択してください。");
+                    JOptionPane.showMessageDialog(frame, "エラーメッセージファイル書き込みディレクトリを選択してください。");
                     return;
                 }
 
@@ -117,19 +135,13 @@ class Main {
                 }
 
                 if (Files.exists(Paths.get(outDir)) == false) {
-                    JOptionPane.showMessageDialog(frame, "エラーチェック結果テキストファイル書き込みディレクトリを選択し直してください。");
+                    JOptionPane.showMessageDialog(frame, "エラーメッセージファイル書き込みディレクトリを選択し直してください。");
                     return;
                 }
 
-                String epubCheckDateTime = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+                String epubCheckDateTime = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss.SSS"));
 
-                List<String> warningMessageList = new ArrayList<>();
                 List<String> errorMessageList = new ArrayList<>();
-
-
-                SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-                SAXParser saxParser = saxParserFactory.newSAXParser();
-
 
                 Path epubFilePath = Paths.get(epub);
 
@@ -138,23 +150,30 @@ class Main {
 
                         String fileName = zipEntry.getName();
 
+                        //(X)HTMLファイル以外は無視
                         if (fileName.matches(".+\\.xhtml|.+\\.html?") == false) {
                             continue;
                         }
 
+                        //nav.xhtmlは無視
+                        if (fileName.matches("nav\\.xhtml")) {
+                            continue;
+                        }
 
                         DefaultHandler defaultHandler = new DefaultHandler() {
+
+                            //警告は無視
                             public void warning(SAXParseException saxParseException) {
-                                warningMessageList.add("警告: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
                             }
+
                             public void error(SAXParseException saxParseException) {
                                 errorMessageList.add("エラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
                             }
+
                             public void fatalError(SAXParseException saxParseException) {
                                 errorMessageList.add("致命的なエラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
                             }
                         };
-
 
                         try {
                             saxParser.parse(new ByteArrayInputStream(zipInputStream.readAllBytes()), defaultHandler);
@@ -167,32 +186,23 @@ class Main {
                     }
                 }
 
+                if (1 <= errorMessageList.size()) {
 
-                String checkResultTextFilePathString = outDir + "/電子書籍チェック結果" + epubCheckDateTime + ".txt";
+                    String errorMessageFilePathString = outDir + "/電子書籍エラーメッセージ" + epubCheckDateTime + ".txt";
 
-                Path checkResultTextFilePath = Paths.get(checkResultTextFilePathString);
+                    Path errorMessageFilePath = Paths.get(errorMessageFilePathString);
 
-                try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(checkResultTextFilePath))) {
+                    try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(errorMessageFilePath))) {
 
-                    if (1 <= errorMessageList.size()) {
-                        printWriter.print(epub + "内の(X)HTMLファイルにはエラーが有ります。\n");
                         printWriter.print(String.join("\n", errorMessageList) + "\n");
-                    } else {
-                        printWriter.print(epub + "内の(X)HTMLファイルにはエラーが無いようです。\n");
-                    }
-
-                    if (1 <= warningMessageList.size()) {
-                        printWriter.print(String.join("\n", warningMessageList) + "\n");
-                    }
-
-
-                    if (1 <= errorMessageList.size()) {
-                        JOptionPane.showMessageDialog(frame, epub + "内の(X)HTMLファイルにはエラーが有ります。");
-                    } else {
-                        JOptionPane.showMessageDialog(frame, epub + "内の(X)HTMLファイルにはエラーが無いようです。");
                     }
                 }
 
+                if (1 <= errorMessageList.size()) {
+                    JOptionPane.showMessageDialog(frame, epub + "内の(X)HTMLファイルにはエラーが有ります。");
+                } else {
+                    JOptionPane.showMessageDialog(frame, epub + "内の(X)HTMLファイルにはエラーが無いようです。");
+                }
 
             } catch (Exception exception) {
                 JOptionPane.showMessageDialog(frame, "エラー: " + exception);
