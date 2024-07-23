@@ -153,12 +153,12 @@ class Main {
                         String fileName = zipEntry.getName();
 
                         //(X)HTMLファイル以外は無視
-                        if (fileName.matches(".+\\.xhtml|.+\\.html?") == false) {
+                        if (fileName.matches(".+\\.[xX][hH][tT][mM][lL]|.+\\.[hH][tT][mM][lL]?") == false) {
                             continue;
                         }
 
                         //nav.xhtmlは無視
-                        if (fileName.matches("nav\\.xhtml")) {
+                        if (fileName.matches("nav\\.[xX][hH][tT][mM][lL]")) {
                             continue;
                         }
 
