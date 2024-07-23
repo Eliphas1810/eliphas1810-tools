@@ -66,7 +66,7 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-/ePubChecker/Main.java validates (X)HTML files in a .epub file as XML files.
+/ePubChecker/Main.java validates (X)HTML files in a .epub file.
 
 ---
 
@@ -136,4 +136,4 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-　/ePubChecker/Main.javaは.epubファイル内の(X)HTMLファイルをXMLとして正しいかチェックします。
+　/ePubChecker/Main.javaは.epubファイル内の(X)HTMLファイルを妥当性検査します。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。
