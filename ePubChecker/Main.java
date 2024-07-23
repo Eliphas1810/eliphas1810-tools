@@ -14,6 +14,8 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.InputSource;
 
 
 import java.nio.file.Path;
@@ -35,23 +37,23 @@ import java.io.PrintWriter;
 
 
 class Main {
+
     public static void main(String[] args) throws Exception {
 
 
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 
-        //saxParserFactory.setNamespaceAware(true);
-        //saxParserFactory.setValidating(true);
+        saxParserFactory.setNamespaceAware(true);
+        saxParserFactory.setValidating(true);
 
         SAXParser saxParser = saxParserFactory.newSAXParser();
 
-        //saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
-        //saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "xhtml1-strict.xsd");
-        //ちなみに、
+        saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
+        saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "modified-xhtml1-strict.xsd");
         //
-        //http://java.sun.com/xml/jaxp/properties/schemaLanguageにDTDは無い。
-        //
-        //Public Domainの(X)HTMLの.xsdファイルは無いようなので自作する必要が有る。
+        //ちなみに、http://java.sun.com/xml/jaxp/properties/schemaLanguageにDTDは無いです。
+
+        XMLReader xmlReader = saxParser.getXMLReader();
 
 
         JFrame frame = new JFrame();
@@ -160,6 +162,7 @@ class Main {
                             continue;
                         }
 
+
                         DefaultHandler defaultHandler = new DefaultHandler() {
 
                             //警告は無視
@@ -167,17 +170,33 @@ class Main {
                             }
 
                             public void error(SAXParseException saxParseException) {
-                                errorMessageList.add("エラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
+
+                                //xml:langのエラーを無視
+                                //
+                                //当アプリケーションを実行するたびにxml:langのエラーの有無やエラー数が変化しますが、2024年7月23日の時点で原因不明
+                                //
+                                if (saxParseException.getMessage().matches(".*xml:lang.*") == false) {
+                                    errorMessageList.add("エラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
+                                }
                             }
 
                             public void fatalError(SAXParseException saxParseException) {
-                                errorMessageList.add("致命的なエラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
+
+                                //xml:langのエラーを無視
+                                //
+                                //当アプリケーションを実行するたびにxml:langのエラーの有無やエラー数が変化しますが、2024年7月23日の時点で原因不明
+                                //
+                                if (saxParseException.getMessage().matches(".*xml:lang.*") == false) {
+                                    errorMessageList.add("致命的なエラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
+                                }
                             }
                         };
 
-                        try {
-                            saxParser.parse(new ByteArrayInputStream(zipInputStream.readAllBytes()), defaultHandler);
+                        xmlReader.setErrorHandler(defaultHandler);
 
+                        try {
+                            xmlReader.parse(new InputSource(new 
+ByteArrayInputStream(zipInputStream.readAllBytes())));
                         } catch (SAXParseException saxParseException) {
                             //SAXParseExceptionを無視
                         }
