@@ -10,12 +10,15 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.SAXParser;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.Validator;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 
 import java.nio.file.Path;
@@ -41,19 +44,10 @@ class Main {
     public static void main(String[] args) throws Exception {
 
 
-        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-
-        saxParserFactory.setNamespaceAware(true);
-        saxParserFactory.setValidating(true);
-
-        SAXParser saxParser = saxParserFactory.newSAXParser();
-
-        saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
-        saxParser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "modified-xhtml1-strict.xsd");
-        //
-        //ちなみに、http://java.sun.com/xml/jaxp/properties/schemaLanguageにDTDは無いです。
-
-        XMLReader xmlReader = saxParser.getXMLReader();
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Source xsdSource = new StreamSource("modified-xhtml1-strict.xsd");
+        Schema schema = schemaFactory.newSchema(xsdSource);
+        Validator validator = schema.newValidator();
 
 
         JFrame frame = new JFrame();
@@ -158,10 +152,12 @@ class Main {
                         }
 
                         //nav.xhtmlは無視
+                        //
+                        //nav.xhtmlのnavタグのepub:type属性の名前空間epubのXMLスキーマの.xsdファイルのURIが不明のため
+                        //
                         if (fileName.matches("nav\\.[xX][hH][tT][mM][lL]")) {
                             continue;
                         }
-
 
                         DefaultHandler defaultHandler = new DefaultHandler() {
 
@@ -170,35 +166,25 @@ class Main {
                             }
 
                             public void error(SAXParseException saxParseException) {
-
-                                //xml:langのエラーを無視
-                                //
-                                //当アプリケーションを実行するたびにxml:langのエラーの有無やエラー数が変化しますが、2024年7月23日の時点で原因不明
-                                //
-                                if (saxParseException.getMessage().matches(".*xml:lang.*") == false) {
-                                    errorMessageList.add("エラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
-                                }
+                                errorMessageList.add("エラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
                             }
 
                             public void fatalError(SAXParseException saxParseException) {
-
-                                //xml:langのエラーを無視
-                                //
-                                //当アプリケーションを実行するたびにxml:langのエラーの有無やエラー数が変化しますが、2024年7月23日の時点で原因不明
-                                //
-                                if (saxParseException.getMessage().matches(".*xml:lang.*") == false) {
-                                    errorMessageList.add("致命的なエラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
-                                }
+                                errorMessageList.add("致命的なエラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
                             }
                         };
 
-                        xmlReader.setErrorHandler(defaultHandler);
+                        validator.setErrorHandler(defaultHandler);
+
 
                         try {
-                            xmlReader.parse(new InputSource(new 
-ByteArrayInputStream(zipInputStream.readAllBytes())));
-                        } catch (SAXParseException saxParseException) {
-                            //SAXParseExceptionを無視
+                            Source xmlSource = new StreamSource(new 
+ByteArrayInputStream(zipInputStream.readAllBytes()));
+
+                            validator.validate(xmlSource);
+
+                        } catch (SAXException saxException) {
+                            //SAXExceptionを無視
                         }
 
                         zipInputStream.closeEntry();
