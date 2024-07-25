@@ -136,4 +136,4 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-　/ePubChecker/Main.javaは.epubファイル内の(X)HTMLファイルを妥当性検査します。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。
+　/ePubChecker/Main.javaは.epubファイル内の(X)HTMLファイルをXHTMLとして妥当性検査します。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。ちなみに、JavaによるXMLの妥当性検査でValidatorクラスのvalidateメソッドではなくSaxParserなどのparseメソッドを利用すると動作不良が発生すると公式のJavaDocに書かれていました。実際、SaxParserのparseメソッドでXHTMLなどのXMLの妥当性検査をするとxml:lang属性が有ると何故かエラーが発生するうえにエラーの数が実行するたびに違うという異常動作が発生しました。
