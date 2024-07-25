@@ -66,7 +66,7 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-/ePubChecker/Main.java validates (X)HTML files in a .epub file.
+/ePubXhtmlValidator/Main.java validates (X)HTML files in a .epub file.
 
 ---
 
@@ -136,4 +136,4 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-　/ePubChecker/Main.javaは.epubファイル内の(X)HTMLファイルをXHTMLとして妥当性検査します。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。.epubファイル内のnav.xhtml内のnavタグのepub:type属性の.xsdファイルのURIが不明のためnavタグのepub:type属性は妥当性検査できません。ちなみに、JavaによるXMLの妥当性検査でValidatorクラスのvalidateメソッドではなくSaxParserなどのparseメソッドを利用し、かつ、XMLスキーマを設定し、かつ、setValidating(true)を実行すると冗長動作またはエラーの原因に成るとjavax.xml.validationパッケージの日本語のJavaDocに書かれていました。実際、XHTMLファイル内にxml:lang属性が有ると何故かエラーが発生するうえにエラーの数が実行するたびに違う問題が発生しました。
+　/ePubXhtmlValidator/Main.javaは.epubファイル内の(X)HTMLファイルをXHTMLとして妥当性検査します。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。.epubファイル内のnav.xhtml内のnavタグのepub:type属性の.xsdファイルのURIが不明のためnavタグのepub:type属性は妥当性検査できません。
