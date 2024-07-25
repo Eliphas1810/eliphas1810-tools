@@ -396,9 +396,9 @@ This software or document includes material copied from or derived from https://
 
 
 
-<!-- Modified 1 / total 4 -->
+<!-- Modified 1 / total 5 -->
 <!-- I thinks that ruby tag is like to span tag. So, In the place of "span", added a reference of ruby tag setting. -->
-<!-- 変更点 1 / 全4 -->
+<!-- 変更点 1 / 全5 -->
 <!-- spanタグに似ていると思われるrubyタグの参照を追加しました。 -->
   <xs:group name="special.pre">
     <xs:choice>
@@ -838,10 +838,10 @@ This software or document includes material copied from or derived from https://
 
 
 
-<!-- Modified 2 / total 4 -->
-<!-- changed alt attribute of img tag to optional. -->
-<!-- 変更点 2 / 全4 -->
-<!-- bodyタグの直下でimgタグを許可しました。 -->
+<!-- Modified 2 / total 5 -->
+<!-- Just under body tag, allowed img tag and nav tag. -->
+<!-- 変更点 2 / 全5 -->
+<!-- bodyタグの直下でimgタグとnavタグを許可しました。 -->
   <xs:element name="body">
     <xs:complexType>
 
@@ -878,6 +878,7 @@ This software or document includes material copied from or derived from https://
         <xs:element ref="del"/>
         <xs:element ref="script"/>
         <xs:element ref="img"/><!-- bodyタグの直下でimgタグを許可しました。 -->
+        <xs:element ref="nav"/><!-- bodyタグの直下でnavタグを許可しました。 -->
       </xs:choice>
 
 <!--
@@ -1236,9 +1237,9 @@ This software or document includes material copied from or derived from https://
 
 
 
-<!-- Modified 3 / total 4 -->
+<!-- Modified 3 / total 5 -->
 <!-- I thinks that ruby tag is like to span tag. So, In the place of "span", added the ruby tag setting. -->
-<!-- 変更点 3 / 全4 -->
+<!-- 変更点 3 / 全5 -->
 <!-- spanタグに似ていると思われるrubyタグの設定を追加しました。 -->
   <xs:element name="ruby">
     <xs:annotation>
@@ -1650,9 +1651,9 @@ This software or document includes material copied from or derived from https://
 
 
 
-<!-- Modified 4 / total 4 -->
-<!-- changed alt attribute of img tag to optional. -->
-<!-- 変更点 4 / 全4 -->
+<!-- Modified 4 / total 5 -->
+<!-- Changed alt attribute of img tag to optional. -->
+<!-- 変更点 4 / 全5 -->
 <!-- imgタグのalt属性を必須から任意に変更しました。 -->
   <xs:element name="img">
     <xs:complexType>
@@ -2326,5 +2327,34 @@ This software or document includes material copied from or derived from https://
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+
+
+
+
+<!-- Modified 5 / total 5 -->
+<!-- Added nav tag setting. -->
+<!-- 変更点 5 / 全5 -->
+<!-- navタグの設定を追加しました。 -->
+  <xs:element name="nav">
+    <xs:annotation>
+      <xs:documentation>
+      navigation section tag
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice>
+        <xs:element minOccurs="0" ref="h1"/>
+        <xs:element minOccurs="0" ref="h2"/>
+        <xs:element minOccurs="0" ref="h3"/>
+        <xs:element minOccurs="0" ref="h4"/>
+        <xs:element minOccurs="0" ref="h5"/>
+        <xs:element minOccurs="0" ref="h6"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="ol"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+
+
 
 </xs:schema>
