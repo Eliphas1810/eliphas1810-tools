@@ -66,7 +66,7 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-/ePubChecker/Main.java validates (X)HTML files except nav.xhtml in a .epub file.
+/ePubChecker/Main.java validates (X)HTML files in a .epub file.
 
 ---
 
