@@ -151,14 +151,6 @@ class Main {
                             continue;
                         }
 
-                        //nav.xhtmlは無視
-                        //
-                        //nav.xhtmlのnavタグのepub:type属性の名前空間epubのXMLスキーマの.xsdファイルのURIが不明のため
-                        //
-                        if (fileName.matches("nav\\.[xX][hH][tT][mM][lL]")) {
-                            continue;
-                        }
-
                         DefaultHandler defaultHandler = new DefaultHandler() {
 
                             //警告は無視
@@ -166,6 +158,17 @@ class Main {
                             }
 
                             public void error(SAXParseException saxParseException) {
+
+                                //nav.xhtmlのepub:type属性のエラーは無視
+                                //
+                                //電子書籍(ePub)のnav.xhtmlのepub:type属性の.xsdファイルのURIが不明のため
+                                //
+                                if (fileName.matches("nav\\.[xX][hH][tT][mM][lL]")) {
+                                    if (saxParseException.getMessage().matches(".*epub:type.*")) {
+                                        return;
+                                    }
+                                }
+
                                 errorMessageList.add("エラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
                             }
 
