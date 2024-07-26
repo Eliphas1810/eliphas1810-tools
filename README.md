@@ -66,7 +66,7 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-/ePubXhtmlValidator/Main.java validates (X)HTML files in a .epub file.
+/ePubXhtmlValidator/Main.java validates (X)HTML files in a .epub file, as XHTML1. Not Support (X)HTML5 tag.
 
 ---
 
@@ -136,4 +136,4 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 <br />
 
-　/ePubXhtmlValidator/Main.javaは.epubファイル内の(X)HTMLファイルをXHTMLとして妥当性検査します。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。.epubファイル内のnav.xhtml内のnavタグのepub:type属性の.xsdファイルのURIが不明のためnavタグのepub:type属性は妥当性検査できません。
+　/ePubXhtmlValidator/Main.javaは.epubファイル内の(X)HTMLファイルをXHTML1として妥当性検査します。(X)HTML5タグは非対応です。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。.epubファイル内のnav.xhtml内のnavタグのepub:type属性の.xsdファイルのURIが不明のためnavタグのepub:type属性は妥当性検査できません。
