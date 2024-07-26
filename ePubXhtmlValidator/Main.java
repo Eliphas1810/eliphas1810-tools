@@ -44,6 +44,19 @@ class Main {
     public static void main(String[] args) throws Exception {
 
 
+        //javax.xml.validationパッケージの日本語のJavaDocによると、
+        //Validatorクラスのvalidateメソッドではなく、
+        //SaxParserなどのparseメソッドでXMLの妥当性検査をし、
+        //かつ、
+        //XMLの妥当性検査前に、XMLスキーマの.xsdファイルをSaxParserなどに設定していて、
+        //かつ、
+        //XMLの妥当性検査前に、SaxParserなどのsetValidating(true)を設定していた場合、
+        //冗長動作またはエラーの原因に成る、
+        //そうです。
+        //
+        //実際、XHTMLファイル内にxml:lang属性が有ると、なぜかエラーと誤判定されるうえに、エラーの数が実行するたびに違う問題が発生しました。
+
+
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source xsdSource = new StreamSource("modified-xhtml1-strict.xsd");
         Schema schema = schemaFactory.newSchema(xsdSource);
