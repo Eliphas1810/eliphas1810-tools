@@ -2342,15 +2342,25 @@ This software or document includes material copied from or derived from https://
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:choice>
-        <xs:element minOccurs="0" ref="h1"/>
-        <xs:element minOccurs="0" ref="h2"/>
-        <xs:element minOccurs="0" ref="h3"/>
-        <xs:element minOccurs="0" ref="h4"/>
-        <xs:element minOccurs="0" ref="h5"/>
-        <xs:element minOccurs="0" ref="h6"/>
-        <xs:element minOccurs="1" maxOccurs="1" ref="ol"/>
-      </xs:choice>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="h1"/>
+          <xs:element ref="h2"/>
+          <xs:element ref="h3"/>
+          <xs:element ref="h4"/>
+          <xs:element ref="h5"/>
+          <xs:element ref="h6"/>
+        </xs:choice>
+        <xs:element ref="ol"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="h1"/>
+          <xs:element ref="h2"/>
+          <xs:element ref="h3"/>
+          <xs:element ref="h4"/>
+          <xs:element ref="h5"/>
+          <xs:element ref="h6"/>
+        </xs:choice>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
