@@ -17,6 +17,8 @@
             <button type="button" id="calculateLevenshteinDistance">レーベンシュタイン距離を計算</button>
         </div>
         <br />
+        <p id="message"></p>
+        <br />
         <p>
             レーベンシュタイン距離: <span id="levenshteinDistance"></span>
         </p>
@@ -84,11 +86,18 @@ function calculateLevenshteinDistance(string, text) {
 
 $("calculateLevenshteinDistance").onclick = function () {
 
+    $("message").innerHTML = "";
+
     $("levenshteinDistance").innerHTML = "";
     $("normalizedLevenshteinDistance").innerHTML = "";
 
     var string = $("string").value;
     var text = $("text").value;
+
+    if (string.length <= 0 || text.length <= 0) {
+        $("message").innerHTML = "2つの文字を、1文字以上、入力してください。";
+        return;
+    }
 
     var levenshteinDistance = calculateLevenshteinDistance(string, text);
 
