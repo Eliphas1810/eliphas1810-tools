@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>レーベンシュタイン距離の計算</title>
+    </head>
+    <body>
+        <div>
+            <input type="text" id="string" size="80"></input>
+        </div>
+        <br />
+        <div>
+            <input type="text" id="text" size="80"></input>
+        </div>
+        <br />
+        <div>
+            <button type="button" id="calculateLevenshteinDistance">レーベンシュタイン距離を計算</button>
+        </div>
+        <br />
+        <p>
+            レーベンシュタイン距離: <span id="levenshteinDistance"></span>
+        </p>
+        <br />
+        <p>
+            2つの文字のうち最大文字数で割って0以上1以下に正規化されたレーベンシュタイン距離: <span id="normalizedLevenshteinDistance"></span>
+        </p>
+        <br />
+        <p>※レーベンシュタイン距離も、正規化されたレーベンシュタイン距離も、小さいほど2つの文字は似ていますし、大きいほど2つの文字は似ていません</p>
+
+
+        <script>
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+//レーベンシュタイン距離を計算
+function calculateLevenshteinDistance(string, text) {
+
+    var maxX = string.length;
+
+    var maxY = text.length;
+
+    var table = [];
+
+    for (var x = 0; x <= maxX; x++) {
+        table[x] = [];
+        table[x][0] = x;
+    }
+
+    for (var x = 0; x <= maxX; x++) {
+        for (var y = 1; y <= maxY; y++) {
+            table[x][y] = 0;
+        }
+    }
+
+    for (var y = 0; y <= maxY; y++) {
+        table[0][y] = y;
+    }
+
+    for (var x = 1; x <= maxX; x++) {
+        for(var y = 1; y <= maxY; y++) {
+
+            var cost = null;
+            if (string.charAt(x - 1) == text.charAt(y - 1)) {
+                cost = 0;
+            } else {
+                cost = 1;
+            }
+
+            table[x][y] = Math.min(
+                table[x - 1][y] + 1,
+                table[x][y - 1] + 1,
+                table[x - 1][y - 1] + cost
+            );
+        }
+    }
+
+    return table[maxX][maxY];
+}
+
+
+$("calculateLevenshteinDistance").onclick = function () {
+
+    $("levenshteinDistance").innerHTML = "";
+    $("normalizedLevenshteinDistance").innerHTML = "";
+
+    var string = $("string").value;
+    var text = $("text").value;
+
+    var levenshteinDistance = calculateLevenshteinDistance(string, text);
+
+    var normalizedLevenshteinDistance = levenshteinDistance / Math.max(string.length, text.length);
+
+    $("levenshteinDistance").innerHTML = levenshteinDistance;
+    $("normalizedLevenshteinDistance").innerHTML = normalizedLevenshteinDistance;
+};
+
+
+        </script>
+    </body>
+</html>
