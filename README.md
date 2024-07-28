@@ -56,7 +56,7 @@ BitFlippedMoviePlayer.html plays a movie of bit flipped .mp4 files.
 
 BitFlippedLoopMoviePlayer.html plays a movie of bit flipped .mp4 files by a single movie loop mode.
 
-LevenshteinDistanceCalculator.html calculates a Levenshtein distance from 2 words. A normalized Levenshtein distance is zero or more, and 1 or less. A normalized Levenshtein distance or a Levenshtein distance is smaller, 2 words are more similar.
+LevenshteinDistanceCalculator.html calculates a Levenshtein distance between 2 words. A normalized Levenshtein distance is zero or more, and 1 or less. A normalized Levenshtein distance or a Levenshtein distance is smaller, 2 words are more similar.
 
 <br />
 
@@ -134,7 +134,7 @@ LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loo
 
 　BitFlippedLoopMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、それぞれの動画1つだけのループ再生ができます。
 
-　LevenshteinDistanceCalculator.htmlでレーベンシュタイン距離を計算できます。正規化されたレーベンシュタイン距離は0以上1以下の実数です。正規化されたレーベンシュタイン距離やレーベンシュタイン距離が小さいほど、2つの文字は似ています。
+　LevenshteinDistanceCalculator.htmlでレーベンシュタイン距離を計算できます。正規化されたレーベンシュタイン距離はゼロ以上1以下の実数です。正規化されたレーベンシュタイン距離やレーベンシュタイン距離が小さいほど、2つの文字は似ています。
 
 <br />
 
