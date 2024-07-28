@@ -54,6 +54,8 @@ BitFlippedImageViewer.html show images of bit flipped image files.
 
 BitFlippedMoviePlayer.html play a movie of bit flipped .mp4 files.
 
+BitFlippedLoopMoviePlayer.html play a movie of bit flipped .mp4 files by a single movie loop mode.
+
 <br />
 
 Self-made Chrome Extensions "SelectNewTab" add new context menu item. the context menu item opens URL link by a new tab and select the new tab.
@@ -64,9 +66,11 @@ BitFlippedImageViewer.apk show images of bit flipped image files on android.
 
 BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
+BitFlippedLoopMoviePlayer.apk play a movie of bit flipped .mp4 files on android by a single movie loop mode.
+
 <br />
 
-/ePubXhtmlValidator/Main.java validates (X)HTML files in a .epub file, as XHTML1. Not Support (X)HTML5 tag.
+/ePubXhtmlValidator/Main.java validates XHTML files in a .epub file, as XHTML1. Not Support (X)HTML5 tags except nav tag.
 
 ---
 
@@ -124,6 +128,8 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 　BitFlippedMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できます。
 
+　BitFlippedLoopMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、それぞれの動画1つだけのループ再生ができます。
+
 <br />
 
 　自作のChromeの拡張機能　SelectNewTab　リンクを新しいタブで開いて選択状態にするメニュー項目をマウスの右クリック メニューに追加します。
@@ -134,6 +140,8 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できるアンドロイドのスマホのアプリです。
 
+　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
+
 <br />
 
-　/ePubXhtmlValidator/Main.javaは.epubファイル内の(X)HTMLファイルをXHTML1として妥当性検査します。(X)HTML5タグは非対応です。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。.epubファイル内のnav.xhtml内のnavタグのepub:type属性の.xsdファイルのURIが不明のためnavタグのepub:type属性は妥当性検査できません。
+　/ePubXhtmlValidator/Main.javaは.epubファイル内のXHTMLファイルをXHTML1として妥当性検査します。navタグを除いてHTML5のタグは非対応です。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。.epubファイル内のnav.xhtml内のnavタグのepub:type属性の.xsdファイルのURIが不明のためnavタグのepub:type属性は妥当性検査できません。
