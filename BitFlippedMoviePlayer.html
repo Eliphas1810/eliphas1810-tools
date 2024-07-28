@@ -60,7 +60,7 @@ $("showBitFlippedMovie").onclick = async function () {
         //ビット反転してからJavaScriptの「バイナリー文字列」に変換
         var jsBinaryString = "";
         for (var byteIndex = 0; byteIndex < size; byteIndex++) {
-            jsBinaryString += String.fromCharCode(((~ dataView.getUint8(byteIndex)) >>> 0) & 0xff)
+            jsBinaryString += String.fromCharCode(((~ dataView.getUint8(byteIndex)) >>> 0) & 0xff);
         }
 
         var divElement = document.createElement("div");
