@@ -68,6 +68,8 @@ BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
 
 BitFlippedLoopMoviePlayer.apk play a movie of bit flipped .mp4 files on android by a single movie loop mode.
 
+LoopMoviePlayer.apk play a movie of .mp4 files on android by a single movie loop mode.
+
 <br />
 
 /ePubXhtmlValidator/Main.java validates XHTML files in a .epub file, as XHTML1. Not Support (X)HTML5 tags except nav tag.
@@ -140,7 +142,9 @@ BitFlippedLoopMoviePlayer.apk play a movie of bit flipped .mp4 files on android 
 
 　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できるアンドロイドのスマホのアプリです。
 
-　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
+　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示し、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
+
+　LoopMoviePlayer.apkは.mp4動画ファイルを表示し、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
 
 <br />
 
