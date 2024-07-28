@@ -10,7 +10,7 @@ Tools of Eliphas1810 by Chrome Extensions, Python, .apk of Android Appli, Java, 
 
 ChangePngColor.py changes RGBA in PNG image file. it requires tkinter and Pillow of Python.
 
-ColorCode.py display color by a RGB hexadecimal notation or a color name for example "black". it requires tkinter of Python.
+ColorCode.py displays color by a RGB hexadecimal notation or a color name for example "black". it requires tkinter of Python.
 
 ListColorCode.py lists RGBs in PNG image file by hexadecimal notation. it requires tkinter and Pillow of Python.
 
@@ -50,25 +50,27 @@ BitFlipper.html flips all bit of a file.
 
 KatakanaExtractor.html extracts Katakana words.
 
-BitFlippedImageViewer.html show images of bit flipped image files.
+BitFlippedImageViewer.html shows images of bit flipped image files.
 
-BitFlippedMoviePlayer.html play a movie of bit flipped .mp4 files.
+BitFlippedMoviePlayer.html plays a movie of bit flipped .mp4 files.
 
-BitFlippedLoopMoviePlayer.html play a movie of bit flipped .mp4 files by a single movie loop mode.
+BitFlippedLoopMoviePlayer.html plays a movie of bit flipped .mp4 files by a single movie loop mode.
 
-<br />
-
-Self-made Chrome Extensions "SelectNewTab" add new context menu item. the context menu item opens URL link by a new tab and select the new tab.
+LevenshteinDistanceCalculator.html calculates a Levenshtein distance from 2 words. A normalized Levenshtein distance is zero or more, and 1 or less. A normalized Levenshtein distance or a Levenshtein distance is smaller, 2 words are more similar.
 
 <br />
 
-BitFlippedImageViewer.apk show images of bit flipped image files on android.
+Self-made Chrome Extensions "SelectNewTab" adds new context menu item. the context menu item opens URL link by a new tab and select the new tab.
 
-BitFlippedMoviePlayer.apk play a movie of bit flipped .mp4 files on android.
+<br />
 
-BitFlippedLoopMoviePlayer.apk play a movie of bit flipped .mp4 files on android by a single movie loop mode.
+BitFlippedImageViewer.apk shows images of bit flipped image files on android.
 
-LoopMoviePlayer.apk play a movie of .mp4 files on android by a single movie loop mode.
+BitFlippedMoviePlayer.apk plays a movie of bit flipped .mp4 files on android.
+
+BitFlippedLoopMoviePlayer.apk plays a movie of bit flipped .mp4 files on android by a single movie loop mode.
+
+LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loop mode.
 
 <br />
 
@@ -131,6 +133,8 @@ LoopMoviePlayer.apk play a movie of .mp4 files on android by a single movie loop
 　BitFlippedMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できます。
 
 　BitFlippedLoopMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、それぞれの動画1つだけのループ再生ができます。
+
+　LevenshteinDistanceCalculator.htmlでレーベンシュタイン距離を計算できます。正規化されたレーベンシュタイン距離は0以上1以下の実数です。正規化されたレーベンシュタイン距離やレーベンシュタイン距離が小さいほど、2つの文字は似ています。
 
 <br />
 
