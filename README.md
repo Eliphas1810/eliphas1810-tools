@@ -48,15 +48,17 @@ UuidVersion4.html generates UUID Version 4.
 
 BitFlipper.html flips all bit of a file.
 
-KatakanaExtractor.html extracts Katakana words.
-
 BitFlippedImageViewer.html shows images of bit flipped image files.
 
 BitFlippedMoviePlayer.html plays a movie of bit flipped .mp4 files.
 
 BitFlippedLoopMoviePlayer.html plays a movie of bit flipped .mp4 files by a single movie loop mode.
 
+KatakanaExtractor.html extracts Katakana words.
+
 LevenshteinDistanceCalculator.html calculates a Levenshtein distance between 2 words. A normalized Levenshtein distance is zero or more, and 1 or less. A normalized Levenshtein distance or a Levenshtein distance is smaller, 2 words are more similar.
+
+KatakanaLevenshteinDistanceCalculator.html calculates Levenshtein distances of Katakana pairs and lists Katakana Pairs, by the order of the normalized Levenshtein distance, from the most similar Katakana pair to the least.
 
 <br />
 
@@ -126,15 +128,17 @@ LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loo
 
 　BitFlipper.htmlで1つのファイルの全てのビットを反転できます。
 
-　KatakanaExtractor.htmlでテキストエリアのテキストの連続しているカタカナを、同じ複数の物を1つだけにして、アイウエオ順に抽出できます。カタカナの誤字脱字を見つけやすくします。
-
 　BitFlippedImageViewer.htmlで全てのビットが反転されている画像ファイルをビットを反転し直して表示できます。
 
 　BitFlippedMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できます。
 
 　BitFlippedLoopMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、それぞれの動画1つだけのループ再生ができます。
 
+　KatakanaExtractor.htmlでテキストエリアのテキストの連続しているカタカナを、同じ複数の物を1つだけにして、アイウエオ順に抽出できます。カタカナの誤字脱字を見つけやすくします。
+
 　LevenshteinDistanceCalculator.htmlでレーベンシュタイン距離を計算できます。正規化されたレーベンシュタイン距離はゼロ以上1以下の実数です。正規化されたレーベンシュタイン距離やレーベンシュタイン距離が小さいほど、2つの文字は似ています。
+
+　KatakanaLevenshteinDistanceCalculator.htmlでカタカナの2つ1組のレーベンシュタイン距離を計算して、正規化されたレーベンシュタイン距離の順に、最も似ているカタカナの2つ1組から、カタカナの2つ1組を一覧表示します。正規化されたレーベンシュタイン距離はゼロ以上1以下の実数です。正規化されたレーベンシュタイン距離が小さいほど、2つの文字は似ています。カタカナの誤字脱字を見つけやすくします。ただし、レーベンシュタイン距離の計算は重いので、表示する最大の正規化されたレーベンシュタイン距離を0.2程度にしてください。
 
 <br />
 
