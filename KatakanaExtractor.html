@@ -40,6 +40,10 @@ $("extractKatakana").onclick = function () {
 
     var katakanaArray = text.match(/[ァ-ヺー][ァ-ヺー 　]*/g);
 
+    if (katakanaArray == null) {
+        katakanaArray = [];
+    }
+
     katakanaArray = Array.from(new Set(katakanaArray));
 
     katakanaArray.sort();
