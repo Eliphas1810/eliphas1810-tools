@@ -50,12 +50,6 @@ function calculateLevenshteinDistance(firstString, secondString) {
         table[x][0] = x;
     }
 
-    for (var x = 0; x <= maxX; x++) {
-        for (var y = 1; y <= maxY; y++) {
-            table[x][y] = 0;
-        }
-    }
-
     for (var y = 0; y <= maxY; y++) {
         table[0][y] = y;
     }
