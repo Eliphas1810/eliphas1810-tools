@@ -64,7 +64,7 @@ class Main {
 
 
         JFrame frame = new JFrame();
-        frame.setTitle("電子書籍(ePub)ファイル内の(X)HTMLファイルのエラーチェック"); //ウィンドウのタイトルバーのタイトル
+        frame.setTitle("電子書籍(ePub)ファイル内のXHTMLファイルのエラーチェック"); //ウィンドウのタイトルバーのタイトル
         frame.setSize(800, 300); //初期表示のウィンドウの横幅と高さ
         frame.setLocationRelativeTo(null); //モニターの中央に表示
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //ウィンドウ右上のXボタンで終了
@@ -116,12 +116,12 @@ class Main {
         );
 
 
-        JButton checkEPubButton = new JButton("電子書籍(ePub)ファイル内の(X)HTMLファイルのエラーチェック");
+        JButton checkEPubButton = new JButton("電子書籍(ePub)ファイル内のXHTMLファイルのエラーチェック");
         checkEPubButton.setSize(480, 20);
         checkEPubButton.setLocation(10, 140); //座標を指定
         container.add(checkEPubButton);
 
-        //電子書籍(ePub)ファイル内の(X)HTMLファイルのエラーチェックボタンが押された時の処理
+        //電子書籍(ePub)ファイル内のXHTMLファイルのエラーチェックボタンが押された時の処理
         checkEPubButton.addActionListener(actionEvent -> {
             try {
 
@@ -160,7 +160,7 @@ class Main {
                         String fileName = zipEntry.getName();
 
                         //(X)HTMLファイル以外は無視
-                        if (fileName.matches(".+\\.[xX][hH][tT][mM][lL]|.+\\.[hH][tT][mM][lL]?") == false) {
+                        if (fileName.matches("^.+\\.[xX][hH][tT][mM][lL]$|^.+\\.[xX][hH][tT]$|^.+\\.[hH][tT][mM][lL]?$") == false) {
                             continue;
                         }
 
@@ -172,14 +172,12 @@ class Main {
 
                             public void error(SAXParseException saxParseException) {
 
-                                //nav.xhtmlのepub:type属性のエラーは無視
+                                //epub:type属性のエラーは無視
                                 //
-                                //電子書籍(ePub)のnav.xhtmlのepub:type属性の.xsdファイルのURIが不明のため
+                                //電子書籍(ePub)のepub:type属性の.xsdファイルのURIが不明のため
                                 //
-                                if (fileName.matches("nav\\.[xX][hH][tT][mM][lL]")) {
-                                    if (saxParseException.getMessage().matches(".*epub:type.*")) {
-                                        return;
-                                    }
+                                if (saxParseException.getMessage().matches(".*epub:type.*")) {
+                                    return;
                                 }
 
                                 errorMessageList.add("エラー: " + fileName + ": 第" + saxParseException.getLineNumber() + "行: " + saxParseException.getMessage());
@@ -220,9 +218,9 @@ ByteArrayInputStream(zipInputStream.readAllBytes()));
                 }
 
                 if (1 <= errorMessageList.size()) {
-                    JOptionPane.showMessageDialog(frame, epub + "内の(X)HTMLファイルにはエラーが有ります。");
+                    JOptionPane.showMessageDialog(frame, epub + "内のXHTMLファイルにはエラーが有ります。");
                 } else {
-                    JOptionPane.showMessageDialog(frame, epub + "内の(X)HTMLファイルにはエラーが無いようです。");
+                    JOptionPane.showMessageDialog(frame, epub + "内のXHTMLファイルにはエラーが無いようです。");
                 }
 
             } catch (Exception exception) {
