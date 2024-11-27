@@ -55,9 +55,9 @@ def up_volume():
 
     audioSegment = AudioSegment.from_file(file_path, format="mp3")
     audioSegment = audioSegment + int(decibel)
-    audioSegment.export(re.sub("\\.[mM][pP]3$", "", file_path) + " VolumeUp.mp3", format="mp3")
+    audioSegment.export(re.sub(r"\.[mM][pP]3$", "", file_path) + " VolumeUp.mp3", format="mp3")
 
-    message_string_var.set("音量をアップしたMP3を保存しました。" + re.sub("\\.[mM][pP]3$", "", file_path) + " VolumeUp.mp3")
+    message_string_var.set("音量をアップしたMP3を保存しました。" + re.sub(r"\.[mM][pP]3$", "", file_path) + " VolumeUp.mp3")
 
 volume_up_button = tkinter.Button(root, text="音量アップ", command=up_volume)
 volume_up_button.place(x=10, y=110)
