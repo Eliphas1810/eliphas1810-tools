@@ -120,7 +120,7 @@ def convert():
             # ファイルの場合
             if os.path.isfile(os.path.join(in_dir, file_name)):
                 # .txtファイルの場合
-                if re.match("^.+\.[tT][xX][tT]$", file_name):
+                if re.match("^.+\\.[tT][xX][tT]$", file_name):
                     text_file_name_list.append(file_name)
 
         text_file_name_list.sort()
@@ -242,7 +242,7 @@ def convert():
                 file.write('            <text:p text:style-name="P3" /><!-- 空行 -->\n')
                 file.write('            <text:p text:style-name="P3" /><!-- 空行 -->\n')
                 file.write('\n')
-                file.write('            <text:h text:style-name="P2" text:outline-level="1">' + escape_xml(re.sub("^[0-9]*[ 　]*|\.[tT][xX][tT]$", "", text_file_name)) + '</text:h>\n')
+                file.write('            <text:h text:style-name="P2" text:outline-level="1">' + escape_xml(re.sub("^[0-9]*[ 　]*|\\.[tT][xX][tT]$", "", text_file_name)) + '</text:h>\n')
                 file.write('\n')
                 file.write('            <text:p text:style-name="P3" /><!-- 空行 -->\n')
                 file.write('\n')
@@ -261,7 +261,7 @@ def convert():
                             # XMLエスケープ
                             text = escape_xml(text)
                             # 漢字(ひらがなかカタカナ)をルビに置換
-                            text = re.sub("([一-鿋々]+)\(([ぁ-ゖァ-ヺー]+)\)", '<text:ruby text:style-name="Ru1"><text:ruby-base>\\1</text:ruby-base><text:ruby-text>\\2</text:ruby-text></text:ruby>', text)
+                            text = re.sub("([一-鿋々]+)\\(([ぁ-ゖァ-ヺー]+)\\)", '<text:ruby text:style-name="Ru1"><text:ruby-base>\\1</text:ruby-base><text:ruby-text>\\2</text:ruby-text></text:ruby>', text)
                             # ｜るび対象《ルビ》をルビに置換
                             text = re.sub("｜([^《]+)《([^》]+)》", '<text:ruby text:style-name="Ru1"><text:ruby-base>\\1</text:ruby-base><text:ruby-text>\\2</text:ruby-text></text:ruby>', text)
                             # 漢字《ひらがなかカタカナ》をルビに置換
