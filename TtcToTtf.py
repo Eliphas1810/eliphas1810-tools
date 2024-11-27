@@ -91,7 +91,7 @@ def ttc_to_ttf():
             # TTC Header Version 2.0の場合は、numFontsの後にデジタル署名のTTC Headerが有るが、無視
 
             max_index = num_fonts - 1
-            font_name = re.sub("\.[tT][tT][cC]$", "", os.path.basename(ttc))
+            font_name = re.sub("\\.[tT][tT][cC]$", "", os.path.basename(ttc))
             # numFontsの数だけ、くり返し
             for index in range(0, num_fonts):
                 file.seek(offset_list[index], os.SEEK_SET)
