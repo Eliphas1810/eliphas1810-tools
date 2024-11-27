@@ -75,8 +75,8 @@ def flip_bit():
             in_file_name = os.path.basename(in_file_path)
 
             out_file_name = ""
-            if re.match("^.+\.[bB][iI][nN]$", in_file_name):
-                out_file_name = re.sub("\.[bB][iI][nN]$", "", in_file_name)
+            if re.match("^.+\\.[bB][iI][nN]$", in_file_name):
+                out_file_name = re.sub("\\.[bB][iI][nN]$", "", in_file_name)
             else:
                 out_file_name = in_file_name + ".bin"
 
