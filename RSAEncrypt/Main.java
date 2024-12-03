@@ -163,7 +163,7 @@ public class Main {
                 KeyFactory keyFactory = KeyFactory.getInstance("RSA");
                 PublicKey publicKey = keyFactory.generatePublic(new RSAPublicKeySpec(new BigInteger(modulusString), new BigInteger(publicExponentString)));
 
-                Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
                 try (
