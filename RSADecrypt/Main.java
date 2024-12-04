@@ -168,8 +168,11 @@ public class Main {
 
                 try (
                     InputStream inputStream = Files.newInputStream(Paths.get(inFile));
-                    OutputStream outputStream = Files.newOutputStream(Paths.get(outDir).resolve(Paths.get(inFile).getFileName().toString().replaceFirst("\\.[rR][sS][aA]\\.[bB][iI][nN]$", "")));
-                    CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
+
+                    CipherOutputStream cipherOutputStream = new CipherOutputStream(
+                        Files.newOutputStream(Paths.get(outDir).resolve(Paths.get(inFile).getFileName().toString().replaceFirst("\\.[rR][sS][aA]\\.[bB][iI][nN]$", ""))),
+                        cipher
+                    );
                 ) {
                     inputStream.transferTo(cipherOutputStream);
                 }
