@@ -168,8 +168,10 @@ public class Main {
 
                 try (
                     InputStream inputStream = Files.newInputStream(Paths.get(inFile));
-                    OutputStream outputStream = Files.newOutputStream(Paths.get(outDir).resolve(Paths.get(inFile).getFileName() + ".rsa.bin"));
-                    CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
+                    CipherOutputStream cipherOutputStream = new CipherOutputStream(
+                        Files.newOutputStream(Paths.get(outDir).resolve(Paths.get(inFile).getFileName() + ".rsa.bin")),
+                        cipher
+                    );
                 ) {
                     inputStream.transferTo(cipherOutputStream);
                 }
