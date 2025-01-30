@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転テキストファイルの内容の表示</title>
+
+        <!-- This application is under the "Public Domain". -->
+
+    </head>
+    <body>
+        <div>
+            <span id="filesLabel">ビット反転テキストファイルを選択</span>　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="view">ビット反転テキストファイルの内容を表示</button>
+        </div>
+        <br />
+        <pre id="text"></pre>
+
+
+        <script>
+
+
+function escapeHtml(string) {
+    string = string.replaceAll(/&/g, "&amp;");
+    string = string.replaceAll(/"/g, "&quot;");
+    string = string.replaceAll(/'/g, "&#39;");
+    string = string.replaceAll(/</g, "&lt;");
+    string = string.replaceAll(/>/g, "&gt;");
+    return string;
+}
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+
+$("view").onclick = async function () {
+
+    $("text").innerHTML = "";
+
+    var files = $("file").files;
+
+    if (files.length == 0) {
+        $("text").innerHTML = "テキストファイルを選択してください。";
+        return;
+    }
+
+    var file = files[0];
+
+    var arrayBuffer = await readAsArrayBufferSync(file);
+    var size = arrayBuffer.byteLength;
+    var dataView = new DataView(arrayBuffer);
+
+    for (var byteIndex = 0; byteIndex < size; byteIndex++) {
+        dataView.setUint8(byteIndex, (~ dataView.getUint8(byteIndex)) >>> 0, /* リトル エンディアン */ true);
+    }
+
+    var text = new TextDecoder().decode(new Uint8Array(arrayBuffer));
+
+    $("text").innerHTML = escapeHtml(text);
+};
+
+
+        </script>
+    </body>
+</html>
