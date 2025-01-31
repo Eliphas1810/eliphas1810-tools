@@ -54,6 +54,8 @@ BitFlippedMoviePlayer.html plays a movie of bit flipped .mp4 files.
 
 BitFlippedLoopMoviePlayer.html plays a movie of bit flipped .mp4 files by a single movie loop mode.
 
+BitFlippedTextViewer.html shows texts of a bit flipped .txt file.
+
 KatakanaExtractor.html extracts Katakana words.
 
 LevenshteinDistanceCalculator.html calculates a Levenshtein distance between 2 words. A normalized Levenshtein distance is zero or more, and 1 or less. A normalized Levenshtein distance or a Levenshtein distance is smaller, 2 words are more similar.
@@ -66,11 +68,17 @@ Self-made Chrome Extensions "SelectNewTab" adds new context menu item. the conte
 
 <br />
 
+BitFlipper.apk flips all bit of a file on android.
+
 BitFlippedImageViewer.apk shows images of bit flipped image files on android.
 
 BitFlippedMoviePlayer.apk plays a movie of bit flipped .mp4 files on android.
 
 BitFlippedLoopMoviePlayer.apk plays a movie of bit flipped .mp4 files on android by a single movie loop mode.
+
+BitFlippedTextViewer.apk shows texts of a bit flipped .txt file on android.
+
+TextViewer.apk shows texts of a .txt file on android.
 
 LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loop mode.
 
@@ -134,6 +142,8 @@ LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loo
 
 　BitFlippedLoopMoviePlayer.htmlで全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、それぞれの動画1つだけのループ再生ができます。
 
+　BitFlippedTextViewer.htmlで全てのビットが反転されているテキスト ファイルをビットを反転し直して表示できます。
+
 　KatakanaExtractor.htmlでテキストエリアのテキストの連続しているカタカナを、同じ複数の物を1つだけにして、アイウエオ順に抽出できます。カタカナの誤字脱字を見つけやすくします。
 
 　LevenshteinDistanceCalculator.htmlでレーベンシュタイン距離を計算できます。正規化されたレーベンシュタイン距離はゼロ以上1以下の実数です。正規化されたレーベンシュタイン距離やレーベンシュタイン距離が小さいほど、2つの文字は似ています。
@@ -146,11 +156,17 @@ LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loo
 
 <br />
 
+　BitFlipper.apkは1つのファイルの全てのビットを反転できるアンドロイドのスマホのアプリです。
+
 　BitFlippedImageViewer.apkは全てのビットが反転されている画像ファイルをビットを反転し直して表示できるアンドロイドのスマホのアプリです。
 
 　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できるアンドロイドのスマホのアプリです。
 
 　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示し、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
+
+　BitFlippedTextViewer.apkは全てのビットが反転されているテキスト ファイルをビットを反転し直して表示できるアンドロイドのスマホのアプリです。
+
+　TextViewer.apkはテキスト ファイルを表示できるアンドロイドのスマホのアプリです。
 
 　LoopMoviePlayer.apkは.mp4動画ファイルを表示し、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
 
