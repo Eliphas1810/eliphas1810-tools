@@ -72,15 +72,9 @@ BitFlipper.apk flips all bit of a file on android.
 
 BitFlippedImageViewer.apk shows images of bit flipped image files on android.
 
-BitFlippedMoviePlayer.apk plays a movie of bit flipped .mp4 files on android.
-
-BitFlippedLoopMoviePlayer.apk plays a movie of bit flipped .mp4 files on android by a single movie loop mode.
-
 BitFlippedTextViewer.apk shows texts of a bit flipped .txt file on android.
 
 TextViewer.apk shows texts of a .txt file on android.
-
-LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loop mode.
 
 <br />
 
@@ -160,15 +154,9 @@ LoopMoviePlayer.apk plays a movie of .mp4 files on android by a single movie loo
 
 　BitFlippedImageViewer.apkは全てのビットが反転されている画像ファイルをビットを反転し直して表示できるアンドロイドのスマホのアプリです。
 
-　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示、再生できるアンドロイドのスマホのアプリです。
-
-　BitFlippedMoviePlayer.apkは全てのビットが反転されている.mp4動画ファイルをビットを反転し直して表示し、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
-
 　BitFlippedTextViewer.apkは全てのビットが反転されているテキスト ファイルをビットを反転し直して表示できるアンドロイドのスマホのアプリです。
 
 　TextViewer.apkはテキスト ファイルを表示できるアンドロイドのスマホのアプリです。
-
-　LoopMoviePlayer.apkは.mp4動画ファイルを表示し、それぞれの動画1つだけのループ再生ができるアンドロイドのスマホのアプリです。
 
 <br />
 
