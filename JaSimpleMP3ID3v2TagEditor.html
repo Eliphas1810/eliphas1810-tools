@@ -405,15 +405,26 @@ $("readImageFile").onclick = async function () {
 
 $("makeMP3File").onclick = function () {
 
+
+    if (mpegFrameUint8Array.length <= 0) {
+        $("makeMP3Message").innerHTML = "MP3ファイルを読み込んでください。";
+        return;
+    }
+
+
     if ($("title").value == "") {
         $("makeMP3Message").innerHTML = "曲名を入力してください。";
+        return;
     }
     if ($("artist").value == "") {
         $("makeMP3Message").innerHTML = "アーティスト名を入力してください。";
+        return;
     }
     if ($("track").value == "") {
         $("makeMP3Message").innerHTML = "例えば1などをトラックを入力してください。";
+        return;
     }
+
 
     var title = $("title").value;
     var artist = $("artist").value;
