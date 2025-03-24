@@ -62,6 +62,8 @@ LevenshteinDistanceCalculator.html calculates a Levenshtein distance between 2 w
 
 KatakanaLevenshteinDistanceCalculator.html calculates Levenshtein distances of Katakana pairs and lists Katakana Pairs, by the order of the normalized Levenshtein distance, from the most similar Katakana pair to the least.
 
+JaSimpleMP3ID3v2TagEditor.html can edit ID3v2.3 and ID3v2.4 Tag of MP3.
+
 <br />
 
 Self-made Chrome Extensions "SelectNewTab" adds new context menu item. the context menu item opens URL link by a new tab and select the new tab.
@@ -143,6 +145,8 @@ TextViewer.apk shows texts of a .txt file on android.
 　LevenshteinDistanceCalculator.htmlでレーベンシュタイン距離を計算できます。正規化されたレーベンシュタイン距離はゼロ以上1以下の実数です。正規化されたレーベンシュタイン距離やレーベンシュタイン距離が小さいほど、2つの文字は似ています。
 
 　KatakanaLevenshteinDistanceCalculator.htmlでカタカナの2つ1組のレーベンシュタイン距離を計算して、正規化されたレーベンシュタイン距離の順に、最も似ているカタカナの2つ1組から、カタカナの2つ1組を一覧表示します。正規化されたレーベンシュタイン距離はゼロ以上1以下の実数です。正規化されたレーベンシュタイン距離が小さいほど、2つの文字は似ています。カタカナの誤字脱字と日本語での表記のゆれを見つけやすくします。ただし、レーベンシュタイン距離の計算は重いので、表示する最大の正規化されたレーベンシュタイン距離を0.2程度にしてください。
+
+　JaSimpleMP3ID3v2TagEditor.htmlはMP3の曲名などのID3v2.3とID3v2.4のタグを編集できます。
 
 <br />
 
