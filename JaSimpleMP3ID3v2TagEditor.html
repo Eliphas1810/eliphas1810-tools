@@ -142,7 +142,7 @@ $("readMP3File").onclick = async function () {
 
     var minorVersion = dataView.getUint8(3);
     if (minorVersion <= 2 || 5 <= minorVersion) {
-        $("readMP3Message").innerHTML = "当アプリケーションはID3v2.3とID3v2.4以外には未対応です。<br />他のアプrケーションを利用してください。";
+        $("readMP3Message").innerHTML = "当アプリケーションはID3v2.3とID3v2.4以外には未対応です。<br />他のアプリケーションを利用してください。";
         return;
     }
     //var batchVersion = dataView.getUint8(4);
