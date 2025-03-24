@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>MP3のID3v2タグ編集</title>
+        <style>
+p {
+    margin: 0;
+}
+
+body, p, input, button {
+    font-size: 16pt;
+}
+
+.label {
+    display: inline-block;
+    width: 10rem;
+}
+
+input {
+    width: 40rem;
+}
+
+        </style>
+    </head>
+    <body>
+        <div>
+            MP3ファイル選択　<input type="file" id="mp3File" accept="audio/mpeg" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="readMP3File">MP3ファイル読み込み</button>
+        </div>
+        <br />
+        <p id="readMP3Message"></p>
+        <br />
+        <div>
+            <span class="label">曲名</span><input type="text" id="title" />
+        </div>
+        <div>
+            <span class="label">アーティスト</span><input type="text" id="artist" />
+        </div>
+        <div>
+            <span class="label">アルバム</span><input type="text" id="album" />
+        </div>
+        <div>
+            <span class="label">トラック</span><input type="text" id="track" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="makeMP3File">新MP3ファイル作成</button>
+        </div>
+        <br />
+        <p id="makeMP3Message"></p>
+        <br />
+        <p>ジャケット画像</p>
+        <img id="jacketImage" />
+        <br />
+        <div>
+            画像ファイル選択　<input type="file" id="imageFile" accept="image/png, image/jpeg" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="readImageFile">画像ファイル読み込み</button>
+        </div>
+        <br />
+        <p id="imageMessage"></p>
+        <br />
+
+
+        <script>
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+
+var imageMimetype = null;
+var imageUint8Array = [];
+var mpegFrameUint8Array = [];
+
+
+$("readMP3File").onclick = async function () {
+
+    $("readMP3Message").innerHTML = "";
+
+    var files = $("mp3File").files;
+
+    if (files.length == 0) {
+        $("readMP3Message").innerHTML = "MP3ファイルを選択してください。";
+        return;
+    }
+
+    var file = files[0];
+
+    var fileName = "" + file.name;
+    if (fileName.match(/^.+\.mp3$/i) == null) {
+        $("readMP3Message").innerHTML = "MP3ファイルを選択してください。";
+        return;
+    }
+
+    var arrayBuffer = await readAsArrayBufferSync(file);
+    var size = arrayBuffer.byteLength;
+    var dataView = new DataView(arrayBuffer);
+
+    $("title").value = "";
+    $("artist").value = "";
+    $("album").value = "";
+    $("track").value = "";
+    $("jacketImage").src = "";
+
+    imageMimetype = null;
+    imageUint8Array = [];
+    mpegFrameUint8Array = [];
+
+    var utf8TextDecoder = new TextDecoder();
+
+    var id3String = utf8TextDecoder.decode(
+        new Uint8Array([
+            dataView.getUint8(0),
+            dataView.getUint8(1),
+            dataView.getUint8(2)
+        ])
+    );
+    if (id3String != "ID3") {
+        //ID3v2タグが無い場合
+        for (var index = 0; index < size; index++) {
+            mpegFrameUint8Array.push(dataView.getUint8(index));
+        }
+    }
+
+    var minorVersion = dataView.getUint8(3);
+    if (minorVersion <= 2 || 5 <= minorVersion) {
+        $("readMP3Message").innerHTML = "当アプリケーションはID3v2.3とID3v2.4以外には未対応です。<br />他のアプrケーションを利用してください。";
+        return;
+    }
+    //var batchVersion = dataView.getUint8(4);
+    var flag = dataView.getUint8(5);
+    var hasExHeader = ((flag & 0x02) != 0);
+    var headerSize = 0;
+    headerSize += (dataView.getUint8(6) << 21);
+    headerSize += (dataView.getUint8(7) << 14);
+    headerSize += (dataView.getUint8(8) << 7);
+    headerSize += dataView.getUint8(9);
+
+    var byteIndex = 10;
+
+    if (hasExHeader) {
+        var exHeaderSize = 0;
+        if (minorVersion == 3) {
+            exHeaderSize += (dataView.getUint8(10) << 24);
+            exHeaderSize += (dataView.getUint8(11) << 16);
+            exHeaderSize += (dataView.getUint8(12) << 8);
+            exHeaderSize += (dataView.getUint8(13));
+        } else {
+            exHeaderSize += (dataView.getUint8(10) << 21);
+            exHeaderSize += (dataView.getUint8(11) << 14);
+            exHeaderSize += (dataView.getUint8(12) << 7);
+            exHeaderSize += (dataView.getUint8(13));
+        }
+        byteIndex += exHeaderSize;
+    }
+
+    while (byteIndex < headerSize) {
+
+        var frameId = utf8TextDecoder.decode(
+            new Uint8Array([
+                dataView.getUint8(byteIndex),
+                dataView.getUint8(byteIndex + 1),
+                dataView.getUint8(byteIndex + 2),
+                dataView.getUint8(byteIndex + 3)
+            ])
+        );
+        byteIndex += 4;
+
+        if (byteIndex == 14 && frameId.match(/^[A-Z][A-Z][A-Z][A-Z0-9]$/) == null) {
+            byteIndex -= 4;
+            var exHeaderSize = 0;
+            if (minorVersion == 3) {
+                exHeaderSize += (dataView.getUint8(10) << 24);
+                exHeaderSize += (dataView.getUint8(11) << 16);
+                exHeaderSize += (dataView.getUint8(12) << 8);
+                exHeaderSize += (dataView.getUint8(13));
+            } else {
+                exHeaderSize += (dataView.getUint8(10) << 21);
+                exHeaderSize += (dataView.getUint8(11) << 14);
+                exHeaderSize += (dataView.getUint8(12) << 7);
+                exHeaderSize += (dataView.getUint8(13));
+            }
+            byteIndex += exHeaderSize;
+            continue;
+        }
+
+        var frameSize = 0;
+        if (minorVersion == 3) {
+            frameSize += (dataView.getUint8(byteIndex) << 24);
+            frameSize += (dataView.getUint8(byteIndex + 1) << 16);
+            frameSize += (dataView.getUint8(byteIndex + 2) << 8);
+            frameSize += (dataView.getUint8(byteIndex + 3));
+        } else {
+            frameSize += (dataView.getUint8(byteIndex) << 21);
+            frameSize += (dataView.getUint8(byteIndex + 1) << 14);
+            frameSize += (dataView.getUint8(byteIndex + 2) << 7);
+            frameSize += (dataView.getUint8(byteIndex + 3));
+        }
+        byteIndex += 4;
+
+        byteIndex += 2; //フレームのフラグは無視して飛ばします。
+
+
+        function getEncodingName(minorVersion, encodingBinary) {
+            if (encodingBinary == 0x00) {
+                //return "iso-8859-1"; //TextDecoderにはiso-8859-1が無いかも
+                return "shift-jis"; //過去の日本語のアプリケーションにはiso-8859-1でshift-jisのテキストを書き込んでいた物が有ったそうです。
+            } else if (encodingBinary == 0x01) {
+                //return "utf-16"; //TextDecoderはutf-16leと解釈してしまいます。
+                return "utf-16le or utf-16be";
+            } else if (minorVersion == 4 && encodingBinary == 0x02) {
+                return "utf-16be";
+            } else if (minorVersion == 4 && encodingBinary == 0x03) {
+                return "utf-8";
+            } else {
+                throw new Error("存在しないID3v2マイナーバージョンとテキスト エンコーディングの16進数表記の組み合わせです。");
+            }
+        }
+
+
+        if (frameId.match(/^TIT2$|^TPE1$|^TALB$|^TRCK$/) != null) {
+
+            var encodingBinary = dataView.getUint8(byteIndex);
+            var encodingName = getEncodingName(minorVersion, encodingBinary);
+            byteIndex += 1;
+
+            var contentString = "";
+            if (encodingName == "utf-16le or utf-16be") {
+                if (dataView.getUint8(byteIndex) == 0xFF && dataView.getUint8(byteIndex + 1) == 0xFE) {
+                    encodingName = "utf-16le";
+                } else if (dataView.getUint8(byteIndex) == 0xFE && dataView.getUint8(byteIndex + 1) == 0xFF) {
+                    encodingName = "utf-16be";
+                } else {
+                    throw new Error("BOM付きのutf-16のBOMが不正です。");
+                }
+                byteIndex += 2;
+
+                var textDecoder = new TextDecoder(encodingName);
+
+                var contentUint8Array = [];
+                for (var index = 0; index < frameSize - 3; index++) {
+                    contentUint8Array.push(dataView.getUint8(byteIndex + index));
+                }
+                byteIndex += contentUint8Array.length;
+                contentString = textDecoder.decode(new Uint8Array(contentUint8Array));
+            } else {
+                var textDecoder = new TextDecoder(encodingName);
+
+                var contentUint8Array = [];
+                for (var index = 0; index < frameSize - 1; index++) {
+                    contentUint8Array.push(dataView.getUint8(byteIndex + index));
+                }
+                byteIndex += contentUint8Array.length;
+                contentString = textDecoder.decode(new Uint8Array(contentUint8Array));
+            }
+
+            if (frameId == "TIT2") {
+                $("title").value = contentString;
+            } else if (frameId == "TPE1") {
+                $("artist").value = contentString;
+            } else if (frameId == "TALB") {
+                $("album").value = contentString;
+            } else if (frameId == "TRCK") {
+                $("track").value = contentString;
+            }
+
+        } else if (frameId == "APIC") {
+
+            var encodingBinary = dataView.getUint8(byteIndex);
+            var encodingName = getEncodingName(minorVersion, encodingBinary);
+            byteIndex += 1;
+
+            if (encodingName == "utf-16le or utf-16be") {
+                if (dataView.getUint8(byteIndex) == 0xFF && dataView.getUint8(byteIndex + 1) == 0xFE) {
+                    encodingName = "utf-16le";
+                } else if (dataView.getUint8(byteIndex) == 0xFE && dataView.getUint8(byteIndex + 1) == 0xFF) {
+                    encodingName = "utf-16be";
+                } else {
+                    throw new Error("BOM付きのutf-16のBOMが不正です。");
+                }
+                byteIndex += 2;
+            }
+
+            var textDecoder = new TextDecoder(encodingName);
+
+            var mimetypeUint8Array = [];
+            for (var index = 0; index < frameSize - 1; index++) {
+                var byte = dataView.getUint8(byteIndex + index);
+                if (byte == 0x00/* NULL */) {
+                    break;
+                }
+                mimetypeUint8Array.push(byte);
+            }
+            imageMimetype = textDecoder.decode(new Uint8Array(mimetypeUint8Array));
+            byteIndex += (mimetypeUint8Array.length + 1);
+
+            byteIndex += 1; //Picture Type(画像の種類)を無視して飛ばします。
+
+            var descriptionUint8Array = [];
+            for (var index = 0; index < (frameSize - 1 - mimetypeUint8Array.length - 1 - 1); index++) {
+                var byte = dataView.getUint8(byteIndex + index);
+                if (byte == 0x00/* NULL */) {
+                    break;
+                }
+                descriptionUint8Array.push(byte);
+            }
+            byteIndex += (descriptionUint8Array.length + 1);
+
+            for (var index = 0; index < (frameSize - 1 - mimetypeUint8Array.length - 1 - 1 - descriptionUint8Array.length - 1); index++) {
+                imageUint8Array.push(dataView.getUint8(byteIndex + index));
+            }
+
+            var jsBinaryString = "";
+            for (var index = 0; index < imageUint8Array.length; index++) {
+                jsBinaryString += String.fromCharCode(imageUint8Array[index]);
+            }
+
+            if (imageMimetype == "image/png") {
+                $("jacketImage").src = "data:image/png;base64," + btoa(jsBinaryString);
+            } else if (imageMimetype == "image/jpeg") {
+                $("jacketImage").src = "data:image/jpeg;base64," + btoa(jsBinaryString);
+            } else {
+                throw new Error("当アプリケーションはPNG画像とJPEG画像以外のジャケット画像に未対応です。");
+            }
+
+        } else {
+            byteIndex += frameSize;
+        }
+    }
+
+    if (headerSize < byteIndex) {
+        byteIndex = headerSize;
+    }
+
+    for (; byteIndex < size; byteIndex++) {
+        mpegFrameUint8Array.push(dataView.getUint8(byteIndex));
+    }
+};
+
+
+$("readImageFile").onclick = async function () {
+
+    $("imageMessage").innerHTML = "";
+
+    var files = $("imageFile").files;
+
+    if (files.length == 0) {
+        $("imageMessage").innerHTML = "画像ファイルを選択してください。";
+        return;
+    }
+
+    var file = files[0];
+
+    var fileName = "" + file.name;
+    if (fileName.match(/^.+\.png$|^.+\.jpe?g$/i) == null) {
+        $("imageMessage").innerHTML = "画像ファイルを選択してください。";
+        return;
+    }
+
+    var arrayBuffer = await readAsArrayBufferSync(file);
+    var size = arrayBuffer.byteLength;
+    var dataView = new DataView(arrayBuffer);
+
+    if (fileName.match(/^.+\.png$/i) != null) {
+        imageMimetype = "image/png";
+    } else if (fileName.match(/^.+\.jpe?g$/i) != null) {
+        imageMimetype = "image/jpeg";
+    }
+
+    imageUint8Array = [];
+    for (var index = 0; index < size; index++) {
+        imageUint8Array.push(dataView.getUint8(index));
+    }
+
+    var jsBinaryString = "";
+    for (var index = 0; index < imageUint8Array.length; index++) {
+        jsBinaryString += String.fromCharCode(imageUint8Array[index]);
+    }
+
+    if (imageMimetype == "image/png") {
+        $("jacketImage").src = "data:image/png;base64," + btoa(jsBinaryString);
+    } else if (imageMimetype == "image/jpeg") {
+        $("jacketImage").src = "data:image/jpeg;base64," + btoa(jsBinaryString);
+    }
+};
+
+
+$("makeMP3File").onclick = function () {
+
+    if ($("title").value == "") {
+        $("makeMP3Message").innerHTML = "曲名を入力してください。";
+    }
+    if ($("artist").value == "") {
+        $("makeMP3Message").innerHTML = "アーティスト名を入力してください。";
+    }
+    if ($("track").value == "") {
+        $("makeMP3Message").innerHTML = "例えば1などをトラックを入力してください。";
+    }
+
+    var title = $("title").value;
+    var artist = $("artist").value;
+    var album = $("album").value;
+    var track = $("track").value;
+
+    var utf8TextEncoder = new TextEncoder();
+
+    var titleBinaryArray = utf8TextEncoder.encode(title);
+    var artistBinaryArray = utf8TextEncoder.encode(artist);
+
+    var albumBinaryArray = [];
+    if (album != "") {
+        albumBinaryArray = utf8TextEncoder.encode(album);
+    }
+
+    var trackBinaryArray = utf8TextEncoder.encode(track);
+
+    var headerSize = 0;
+    headerSize += 10;
+    headerSize += (10 + 1 + titleBinaryArray.length);
+    headerSize += (10 + 1 + artistBinaryArray.length);
+    headerSize += (10 + 1 + trackBinaryArray.length);
+    if (album != "") {
+        headerSize += (10 + 1 + albumBinaryArray.length);
+    }
+    if (1 <= imageUint8Array.length) {
+        headerSize += (10 + 1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length);
+    }
+
+    var fileSize = headerSize + mpegFrameUint8Array.length;
+
+    var arrayBuffer = new ArrayBuffer(fileSize);
+    var dataView = new DataView(arrayBuffer);
+    var byteIndex = 0;
+
+    dataView.setUint8(byteIndex, 0x49/* I */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x44/* D */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x33/* 3 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x04/* マイナーバージョン4 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* パッチバージョン0 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* ヘッダーのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, headerSize << 4 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, headerSize << 11 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, headerSize << 18 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, headerSize << 25 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+
+    dataView.setUint8(byteIndex, 0x54/* T */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x49/* I */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x54/* T */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x32/* 2 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    for (var index = 0; index < titleBinaryArray.length; index++) {
+        dataView.setUint8(byteIndex, titleBinaryArray[index], false/* ビッグ エンディアン */);
+        byteIndex++;
+    }
+
+    dataView.setUint8(byteIndex, 0x54/* T */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x50/* P */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x45/* E */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x31/* 1 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    for (var index = 0; index < artistBinaryArray.length; index++) {
+        dataView.setUint8(byteIndex, artistBinaryArray[index], false/* ビッグ エンディアン */);
+        byteIndex++;
+    }
+
+    dataView.setUint8(byteIndex, 0x54/* T */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x52/* R */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x43/* C */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x4B/* K */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    for (var index = 0; index < trackBinaryArray.length; index++) {
+        dataView.setUint8(byteIndex, trackBinaryArray[index], false/* ビッグ エンディアン */);
+        byteIndex++;
+    }
+
+    if (album != "") {
+        dataView.setUint8(byteIndex, 0x54/* T */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x41/* A */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x4C/* L */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x42/* B */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        for (var index = 0; index < albumBinaryArray.length; index++) {
+            dataView.setUint8(byteIndex, albumBinaryArray[index], false/* ビッグ エンディアン */);
+            byteIndex++;
+        }
+    }
+
+    if (1 <= imageUint8Array.length) {
+        dataView.setUint8(byteIndex, 0x41/* A */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x50/* P */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x49/* I */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x43/* C */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 25 >>> 25, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        for (var index = 0; index < imageMimetype.length; index++) {
+            dataView.setUint8(byteIndex, utf8TextEncoder.encode(imageMimetype.charAt(index)), false/* ビッグ エンディアン */);
+            byteIndex++;
+        }
+        dataView.setUint8(byteIndex, 0x00/* NULLの文字コード */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x03/* Picture Type(画像の種類)。Front Cover(表カバー)は16進数で03。 */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x00/* Description(説明)の終了を表すNULLの文字コード。 */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        for (var index = 0; index < imageUint8Array.length; index++) {
+            dataView.setUint8(byteIndex, imageUint8Array[index], false/* ビッグ エンディアン */);
+            byteIndex++;
+        }
+    }
+
+    for (var index = 0; index < mpegFrameUint8Array.length; index++) {
+        dataView.setUint8(byteIndex, mpegFrameUint8Array[index], false/* ビッグ エンディアン */);
+        byteIndex++;
+    }
+
+    var blob = new Blob([new Uint8Array(arrayBuffer)], {type: "audio/mpeg"});
+
+    var url = URL.createObjectURL(blob);
+
+    var aTagElement = document.createElement("a");
+    aTagElement.href = url;
+    aTagElement.download = title + ".mp3";
+    aTagElement.click();
+
+    URL.revokeObjectURL(url);
+};
+
+
+        </script>
+    </body>
+</html>
