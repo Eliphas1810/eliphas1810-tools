@@ -138,6 +138,7 @@ $("readMP3File").onclick = async function () {
         for (var index = 0; index < size; index++) {
             mpegFrameUint8Array.push(dataView.getUint8(index));
         }
+        return;
     }
 
     var minorVersion = dataView.getUint8(3);
