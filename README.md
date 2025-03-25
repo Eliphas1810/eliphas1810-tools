@@ -80,6 +80,8 @@ TextViewer.apk shows texts of a .txt file on android.
 
 <br />
 
+/JaSimpleMp3Id3v2TagEditor/Main.java can edit ID3v2.3 and ID3v2.4 Tag of MP3.
+
 /ePubXhtmlValidator/Main.java validates XHTML files in a .epub file, as XHTML1. Not Support (X)HTML5 tags except nav tag.
 
 ---
@@ -163,5 +165,7 @@ TextViewer.apk shows texts of a .txt file on android.
 　TextViewer.apkはテキスト ファイルを表示できるアンドロイドのスマホのアプリです。
 
 <br />
+
+　/JaSimpleMp3Id3v2TagEditor/Main.javaはMP3の曲名などのID3v2.3とID3v2.4のタグを編集できます。
 
 　/ePubXhtmlValidator/Main.javaは.epubファイル内のXHTMLファイルをXHTML1として妥当性検査します。navタグを除いてHTML5のタグは非対応です。全角空白の字下げの誤り、HTMLのタグではないタグの利用の誤り、タグの閉じ忘れなどを完全ではありませんが、ある程度、発見できます。.epubファイル内のnav.xhtml内のnavタグのepub:type属性の.xsdファイルのURIが不明のためnavタグのepub:type属性は妥当性検査できません。
