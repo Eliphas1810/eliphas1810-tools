@@ -426,7 +426,7 @@ public class Main {
                     headerSize += (10 + 1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size());
                 }
 
-                var fileSize = headerSize + mpegFrameByteList.size();
+                int fileSize = headerSize + mpegFrameByteList.size();
 
                 try(
                     BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(Files.newOutputStream(newMp3FilePath, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
