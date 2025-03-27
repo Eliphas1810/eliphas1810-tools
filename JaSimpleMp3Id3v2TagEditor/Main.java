@@ -30,7 +30,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         JFrame frame = new JFrame();
         frame.setTitle("MP3のID3v2タグ編集"); //ウィンドウのタイトルバーのタイトル
-        frame.setSize(800, 600); //初期表示のウィンドウの横幅と高さ
+        frame.setSize(800, 700); //初期表示のウィンドウの横幅と高さ
         frame.setLocationRelativeTo(null); //モニターの中央に表示
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //ウィンドウ右上のXボタンで終了
 
@@ -47,59 +47,69 @@ public class Main {
         mp3SelectButton.setLocation(10, 10); //座標を指定
         container.add(mp3SelectButton);
 
+        JLabel newMP3FileNameLabel = new JLabel("新MP3ファイル名");
+        newMP3FileNameLabel.setSize(100, 10);
+        newMP3FileNameLabel.setLocation(10, 60); //座標を指定
+        container.add(newMP3FileNameLabel);
+
+        JTextField newMP3FileNameTextField = new JTextField(80);
+        newMP3FileNameTextField.setSize(640, 20);
+        newMP3FileNameTextField.setLocation(110, 60); //座標を指定
+        container.add(newMP3FileNameTextField);
+
         JLabel titleLabel = new JLabel("曲名");
         titleLabel.setSize(100, 10);
-        titleLabel.setLocation(10, 60); //座標を指定
+        titleLabel.setLocation(10, 90); //座標を指定
         container.add(titleLabel);
 
         JTextField titleTextField = new JTextField(80);
         titleTextField.setSize(640, 20);
-        titleTextField.setLocation(110, 60); //座標を指定
+        titleTextField.setLocation(110, 90); //座標を指定
         container.add(titleTextField);
 
         JLabel artistLabel = new JLabel("アーティスト名");
         artistLabel.setSize(100, 10);
-        artistLabel.setLocation(10, 90); //座標を指定
+        artistLabel.setLocation(10, 120); //座標を指定
         container.add(artistLabel);
 
         JTextField artistTextField = new JTextField(80);
         artistTextField.setSize(640, 20);
-        artistTextField.setLocation(110, 90); //座標を指定
+        artistTextField.setLocation(110, 120); //座標を指定
         container.add(artistTextField);
 
         JLabel albumLabel = new JLabel("アルバム名");
         albumLabel.setSize(100, 10);
-        albumLabel.setLocation(10, 120); //座標を指定
+        albumLabel.setLocation(10, 150); //座標を指定
         container.add(albumLabel);
 
         JTextField albumTextField = new JTextField(80);
         albumTextField.setSize(640, 20);
-        albumTextField.setLocation(110, 120); //座標を指定
+        albumTextField.setLocation(110, 150); //座標を指定
         container.add(albumTextField);
 
         JLabel trackLabel = new JLabel("トラック番号");
         trackLabel.setSize(100, 10);
-        trackLabel.setLocation(10, 150); //座標を指定
+        trackLabel.setLocation(10, 180); //座標を指定
         container.add(trackLabel);
 
         JTextField trackTextField = new JTextField(80);
         trackTextField.setSize(640, 20);
-        trackTextField.setLocation(110, 150); //座標を指定
+        trackTextField.setLocation(110, 180); //座標を指定
         container.add(trackTextField);
 
         JButton makeMp3Button = new JButton("新MP3ファイル作成");
         makeMp3Button.setSize(240, 20);
-        makeMp3Button.setLocation(10, 180); //座標を指定
+        makeMp3Button.setLocation(10, 210); //座標を指定
         container.add(makeMp3Button);
 
         JLabel imageLabel = new JLabel("画像 無し");
-        imageLabel.setSize(700, 300);
-        imageLabel.setLocation(10, 210); //座標を指定
+        imageLabel.setSize(800, 300);
+        imageLabel.setLocation(10, 240); //座標を指定
         container.add(imageLabel);
 
         JButton imageSelectButton = new JButton("画像ファイル選択");
         imageSelectButton.setSize(240, 20);
-        imageSelectButton.setLocation(10, 530); //座標を指定
+        imageSelectButton.setLocation(10, 560); //座標を指定
         container.add(imageSelectButton);
 
 
@@ -122,6 +132,7 @@ public class Main {
 
                         byte[] byteArray = Files.readAllBytes(fileChooser.getSelectedFile().toPath());
 
+                        newMP3FileNameTextField.setText("新" + fileChooser.getSelectedFile().toPath().getFileName());
                         titleTextField.setText("");
                         artistTextField.setText("");
                         albumTextField.setText("");
@@ -385,11 +396,16 @@ public class Main {
                     return;
                 }
 
+                String newMP3FileName = newMP3FileNameTextField.getText();
                 String title = titleTextField.getText();
                 String artist = artistTextField.getText();
                 String album = albumTextField.getText();
                 String track = trackTextField.getText();
 
+                if (newMP3FileName.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "新MP3ファイル名を記入してください。");
+                    return;
+                }
                 if (title.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "曲名を記入してください。");
                     return;
@@ -407,7 +423,7 @@ public class Main {
 
                 Path mp3DirPath = Paths.get(mp3FilePath).getParent();
 
-                Path newMp3FilePath = mp3DirPath.resolve(title + ".mp3");
+                Path newMp3FilePath = mp3DirPath.resolve(newMP3FileName);
 
                 byte[] titleByteArray = title.getBytes(StandardCharsets.UTF_8);
                 byte[] artistByteArray = artist.getBytes(StandardCharsets.UTF_8);
