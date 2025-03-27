@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+>
+
+    <Button
+        android:id="@+id/selectMP3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/select_mp3"
+        android:layout_gravity="center"
+    />
+
+    <TextView
+        android:id="@+id/titleLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title_label"
+    />
+
+    <EditText
+        android:id="@+id/title"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text=""
+    />
+
+    <TextView
+        android:id="@+id/artistLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/artist_label"
+    />
+
+    <EditText
+        android:id="@+id/artist"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text=""
+    />
+
+    <TextView
+        android:id="@+id/albumLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/album_label"
+    />
+
+    <EditText
+        android:id="@+id/album"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text=""
+    />
+
+    <TextView
+        android:id="@+id/trackLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/track_label"
+    />
+
+    <EditText
+        android:id="@+id/track"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text=""
+    />
+
+    <Button
+        android:id="@+id/makeMP3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/make_mp3"
+        android:layout_gravity="center"
+    />
+
+    <Button
+        android:id="@+id/selectJacketImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/select_jacket_image"
+        android:layout_gravity="center"
+    />
+
+    <eliphas1810.jasimplemp3idv2tageditor.ZoomableImageView
+        android:id="@+id/jacketImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+    >
+        <TextView
+            android:id="@+id/license"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/license"
+        />
+    </ScrollView>
+
+</LinearLayout>
