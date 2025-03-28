@@ -425,10 +425,10 @@ public class Main {
 
                 Path newMp3FilePath = mp3DirPath.resolve(newMP3FileName);
 
-                byte[] titleByteArray = title.getBytes(StandardCharsets.UTF_8);
-                byte[] artistByteArray = artist.getBytes(StandardCharsets.UTF_8);
-                byte[] albumByteArray = album.getBytes(StandardCharsets.UTF_8);
-                byte[] trackByteArray = track.getBytes(StandardCharsets.UTF_8);
+                byte[] titleByteArray = title.getBytes(StandardCharsets.UTF_16);
+                byte[] artistByteArray = artist.getBytes(StandardCharsets.UTF_16);
+                byte[] albumByteArray = album.getBytes(StandardCharsets.UTF_16);
+                byte[] trackByteArray = track.getBytes(StandardCharsets.UTF_16);
 
                 int headerSize = 0;
                 headerSize += 10;
@@ -454,7 +454,7 @@ public class Main {
                     bufferedOutputStream.write(0x49/* I */);
                     bufferedOutputStream.write(0x44/* D */);
                     bufferedOutputStream.write(0x33/* 3 */);
-                    bufferedOutputStream.write(0x04/* マイナーバージョン4 */);
+                    bufferedOutputStream.write(0x03/* マイナーバージョン3 */);
                     bufferedOutputStream.write(0x00/* パッチバージョン0 */);
                     bufferedOutputStream.write(0x00/* ヘッダーのフラグ */);
                     bufferedOutputStream.write(headerSize << 4 >>> 25);
@@ -466,13 +466,13 @@ public class Main {
                     bufferedOutputStream.write(0x49/* I */);
                     bufferedOutputStream.write(0x54/* T */);
                     bufferedOutputStream.write(0x32/* 2 */);
-                    bufferedOutputStream.write((1 + titleByteArray.length) << 4 >>> 25);
-                    bufferedOutputStream.write((1 + titleByteArray.length) << 11 >>> 25);
-                    bufferedOutputStream.write((1 + titleByteArray.length) << 18 >>> 25);
-                    bufferedOutputStream.write((1 + titleByteArray.length) << 25 >>> 25);
+                    bufferedOutputStream.write((1 + titleByteArray.length) >>> 24);
+                    bufferedOutputStream.write((1 + titleByteArray.length) << 8 >>> 24);
+                    bufferedOutputStream.write((1 + titleByteArray.length) << 16 >>> 24);
+                    bufferedOutputStream.write((1 + titleByteArray.length) << 24 >>> 24);
                     bufferedOutputStream.write(0x00/* フレームのフラグ */);
                     bufferedOutputStream.write(0x00/* フレームのフラグ */);
-                    bufferedOutputStream.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */);
+                    bufferedOutputStream.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */);
                     for (int index = 0; index < titleByteArray.length; index++) {
                         bufferedOutputStream.write(titleByteArray[index]);
                     }
@@ -481,13 +481,13 @@ public class Main {
                     bufferedOutputStream.write(0x50/* P */);
                     bufferedOutputStream.write(0x45/* E */);
                     bufferedOutputStream.write(0x31/* 1 */);
-                    bufferedOutputStream.write((1 + artistByteArray.length) << 4 >>> 25);
-                    bufferedOutputStream.write((1 + artistByteArray.length) << 11 >>> 25);
-                    bufferedOutputStream.write((1 + artistByteArray.length) << 18 >>> 25);
-                    bufferedOutputStream.write((1 + artistByteArray.length) << 25 >>> 25);
+                    bufferedOutputStream.write((1 + artistByteArray.length) >> 24);
+                    bufferedOutputStream.write((1 + artistByteArray.length) << 8 >>> 24);
+                    bufferedOutputStream.write((1 + artistByteArray.length) << 16 >>> 24);
+                    bufferedOutputStream.write((1 + artistByteArray.length) << 24 >>> 24);
                     bufferedOutputStream.write(0x00/* フレームのフラグ */);
                     bufferedOutputStream.write(0x00/* フレームのフラグ */);
-                    bufferedOutputStream.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */);
+                    bufferedOutputStream.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */);
                     for (int index = 0; index < artistByteArray.length; index++) {
                         bufferedOutputStream.write(artistByteArray[index]);
                     }
@@ -496,13 +496,13 @@ public class Main {
                     bufferedOutputStream.write(0x52/* R */);
                     bufferedOutputStream.write(0x43/* C */);
                     bufferedOutputStream.write(0x4B/* K */);
-                    bufferedOutputStream.write((1 + trackByteArray.length) << 4 >>> 25);
-                    bufferedOutputStream.write((1 + trackByteArray.length) << 11 >>> 25);
-                    bufferedOutputStream.write((1 + trackByteArray.length) << 18 >>> 25);
-                    bufferedOutputStream.write((1 + trackByteArray.length) << 25 >>> 25);
+                    bufferedOutputStream.write((1 + trackByteArray.length) >>> 24);
+                    bufferedOutputStream.write((1 + trackByteArray.length) << 8 >>> 24);
+                    bufferedOutputStream.write((1 + trackByteArray.length) << 16 >>> 24);
+                    bufferedOutputStream.write((1 + trackByteArray.length) << 24 >>> 24);
                     bufferedOutputStream.write(0x00/* フレームのフラグ */);
                     bufferedOutputStream.write(0x00/* フレームのフラグ */);
-                    bufferedOutputStream.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */);
+                    bufferedOutputStream.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */);
                     for (int index = 0; index < trackByteArray.length; index++) {
                         bufferedOutputStream.write(trackByteArray[index]);
                     }
@@ -512,13 +512,13 @@ public class Main {
                         bufferedOutputStream.write(0x41/* A */);
                         bufferedOutputStream.write(0x4C/* L */);
                         bufferedOutputStream.write(0x42/* B */);
-                        bufferedOutputStream.write((1 + albumByteArray.length) << 4 >>> 25);
-                        bufferedOutputStream.write((1 + albumByteArray.length) << 11 >>> 25);
-                        bufferedOutputStream.write((1 + albumByteArray.length) << 18 >>> 25);
-                        bufferedOutputStream.write((1 + albumByteArray.length) << 25 >>> 25);
+                        bufferedOutputStream.write((1 + albumByteArray.length) >>> 24);
+                        bufferedOutputStream.write((1 + albumByteArray.length) << 8 >>> 24);
+                        bufferedOutputStream.write((1 + albumByteArray.length) << 16 >>> 24);
+                        bufferedOutputStream.write((1 + albumByteArray.length) << 24 >>> 24);
                         bufferedOutputStream.write(0x00/* フレームのフラグ */);
                         bufferedOutputStream.write(0x00/* フレームのフラグ */);
-                        bufferedOutputStream.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */);
+                    bufferedOutputStream.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */);
                         for (int index = 0; index < albumByteArray.length; index++) {
                             bufferedOutputStream.write(albumByteArray[index]);
                         }
@@ -529,15 +529,15 @@ public class Main {
                         bufferedOutputStream.write(0x50/* P */);
                         bufferedOutputStream.write(0x49/* I */);
                         bufferedOutputStream.write(0x43/* C */);
-                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) << 4 >>> 25);
-                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) << 11 >>> 25);
-                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) << 18 >>> 25);
-                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) << 25 >>> 25);
+                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) >>> 24);
+                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) << 8 >>> 24);
+                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) << 16 >>> 24);
+                        bufferedOutputStream.write((1 + imageMimetype.length() + 1 + 1 + 1 + imageByteList.size()) << 24 >>> 24);
                         bufferedOutputStream.write(0x00/* フレームのフラグ */);
                         bufferedOutputStream.write(0x00/* フレームのフラグ */);
-                        bufferedOutputStream.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */);
+                        bufferedOutputStream.write(0x00/* テキストのフレームの文字コード。ISO-8859-1は16進数で00。 */);
 
-                        byte[] imageMimetypeByteArray = imageMimetype.getBytes(StandardCharsets.UTF_8);
+                        byte[] imageMimetypeByteArray = imageMimetype.getBytes(StandardCharsets.UTF_8); //UTF-8はISO-8859-1を包含
 
                         for (int index = 0; index < imageMimetypeByteArray.length; index++) {
                             bufferedOutputStream.write(imageMimetypeByteArray[index]);
