@@ -240,7 +240,7 @@ public class Main {
                                 } else if (minorVersion == 4 && encodingByte == 0x02) {
                                     charset = Charset.forName("UTF-16BE");
                                 } else if (minorVersion == 4 && encodingByte == 0x03) {
-                                    charset = Charset.forName("utf-8");
+                                    charset = Charset.forName("UTF-8");
                                 } else {
                                     throw new Exception("存在しないID3v2マイナーバージョンとテキスト エンコーディングの16進数表記の組み合わせです。");
                                 }
@@ -281,7 +281,7 @@ public class Main {
                                 } else if (minorVersion == 4 && encodingByte == 0x02) {
                                     charset = Charset.forName("UTF-16BE");
                                 } else if (minorVersion == 4 && encodingByte == 0x03) {
-                                    charset = Charset.forName("utf-8");
+                                    charset = Charset.forName("UTF-8");
                                 } else {
                                     throw new Exception("存在しないID3v2マイナーバージョンとテキスト エンコーディングの16進数表記の組み合わせです。");
                                 }
