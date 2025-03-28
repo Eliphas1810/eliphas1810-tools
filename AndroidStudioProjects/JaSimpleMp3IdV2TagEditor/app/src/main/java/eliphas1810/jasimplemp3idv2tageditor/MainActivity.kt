@@ -283,10 +283,10 @@ class MainActivity : AppCompatActivity() {
             //contentResolver.openOutputStream()で"wt"モードを指定しないと、書き込み前のバイト数が大きい場合、書き込み前のバイトの先頭の一部を置換するような形に成ってしまいます。
             BufferedOutputStream(contentResolver.openOutputStream(uri!!, "wt")).use {
 
-                val titleByteArray = title.toByteArray(StandardCharsets.UTF_8)
-                val artistByteArray = artist.toByteArray(StandardCharsets.UTF_8)
-                val albumByteArray = album.toByteArray(StandardCharsets.UTF_8)
-                val trackByteArray = track.toByteArray(StandardCharsets.UTF_8)
+                val titleByteArray = title.toByteArray(StandardCharsets.UTF_16)
+                val artistByteArray = artist.toByteArray(StandardCharsets.UTF_16)
+                val albumByteArray = album.toByteArray(StandardCharsets.UTF_16)
+                val trackByteArray = track.toByteArray(StandardCharsets.UTF_16)
 
                 var headerSize: Int = 0
                 headerSize += 10
@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity() {
                 it?.write(0x49/* I */)
                 it?.write(0x44/* D */)
                 it?.write(0x33/* 3 */)
-                it?.write(0x04/* マイナーバージョン4 */)
+                it?.write(0x03/* マイナーバージョン3 */)
                 it?.write(0x00/* パッチバージョン0 */)
                 it?.write(0x00/* ヘッダーのフラグ */)
                 it?.write(headerSize.shl(4).ushr(25))
@@ -318,13 +318,13 @@ class MainActivity : AppCompatActivity() {
                 it?.write(0x49/* I */)
                 it?.write(0x54/* T */)
                 it?.write(0x32/* 2 */)
-                it?.write((1 + titleByteArray.size).shl(4).ushr(25))
-                it?.write((1 + titleByteArray.size).shl(11).ushr(25))
-                it?.write((1 + titleByteArray.size).shl(18).ushr(25))
-                it?.write((1 + titleByteArray.size).shl(25).ushr(25))
+                it?.write((1 + titleByteArray.size).ushr(24))
+                it?.write((1 + titleByteArray.size).shl(8).ushr(24))
+                it?.write((1 + titleByteArray.size).shl(16).ushr(24))
+                it?.write((1 + titleByteArray.size).shl(24).ushr(24))
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x00/* フレームのフラグ */)
-                it?.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */)
+                it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
                 for (index in 0..(titleByteArray.size - 1)) {
                     it?.write(titleByteArray[index].toInt())
                 }
@@ -333,13 +333,13 @@ class MainActivity : AppCompatActivity() {
                 it?.write(0x50/* P */)
                 it?.write(0x45/* E */)
                 it?.write(0x31/* 1 */)
-                it?.write((1 + artistByteArray.size).shl(4).ushr(25))
-                it?.write((1 + artistByteArray.size).shl(11).ushr(25))
-                it?.write((1 + artistByteArray.size).shl(18).ushr(25))
-                it?.write((1 + artistByteArray.size).shl(25).ushr(25))
+                it?.write((1 + artistByteArray.size).ushr(24))
+                it?.write((1 + artistByteArray.size).shl(8).ushr(24))
+                it?.write((1 + artistByteArray.size).shl(16).ushr(24))
+                it?.write((1 + artistByteArray.size).shl(24).ushr(24))
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x00/* フレームのフラグ */)
-                it?.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */)
+                it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
                 for (index in 0..(artistByteArray.size - 1)) {
                     it?.write(artistByteArray[index].toInt())
                 }
@@ -348,13 +348,13 @@ class MainActivity : AppCompatActivity() {
                 it?.write(0x52/* R */)
                 it?.write(0x43/* C */)
                 it?.write(0x4B/* K */)
-                it?.write((1 + trackByteArray.size).shl(4).ushr(25))
-                it?.write((1 + trackByteArray.size).shl(11).ushr(25))
-                it?.write((1 + trackByteArray.size).shl(18).ushr(25))
-                it?.write((1 + trackByteArray.size).shl(25).ushr(25))
+                it?.write((1 + trackByteArray.size).ushr(24))
+                it?.write((1 + trackByteArray.size).shl(8).ushr(24))
+                it?.write((1 + trackByteArray.size).shl(16).ushr(24))
+                it?.write((1 + trackByteArray.size).shl(24).ushr(24))
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x00/* フレームのフラグ */)
-                it?.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */)
+                it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
                 for (index in 0..(trackByteArray.size - 1)) {
                     it?.write(trackByteArray[index].toInt())
                 }
@@ -364,13 +364,13 @@ class MainActivity : AppCompatActivity() {
                     it?.write(0x41/* A */)
                     it?.write(0x4C/* L */)
                     it?.write(0x42/* B */)
-                    it?.write((1 + albumByteArray.size).shl(4).ushr(25))
-                    it?.write((1 + albumByteArray.size).shl(11).ushr(25))
-                    it?.write((1 + albumByteArray.size).shl(18).ushr(25))
-                    it?.write((1 + albumByteArray.size).shl(25).ushr(25))
+                    it?.write((1 + albumByteArray.size).ushr(24))
+                    it?.write((1 + albumByteArray.size).shl(8).ushr(24))
+                    it?.write((1 + albumByteArray.size).shl(16).ushr(24))
+                    it?.write((1 + albumByteArray.size).shl(24).ushr(24))
                     it?.write(0x00/* フレームのフラグ */)
                     it?.write(0x00/* フレームのフラグ */)
-                    it?.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */)
+                    it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
                     for (index in 0..(albumByteArray.size - 1)) {
                         it?.write(albumByteArray[index].toInt())
                     }
@@ -381,15 +381,15 @@ class MainActivity : AppCompatActivity() {
                     it?.write(0x50/* P */)
                     it?.write(0x49/* I */)
                     it?.write(0x43/* C */)
-                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(4).ushr(25))
-                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(11).ushr(25))
-                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(18).ushr(25))
-                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(25).ushr(25))
+                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).ushr(24))
+                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(8).ushr(24))
+                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(16).ushr(24))
+                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(24).ushr(24))
                     it?.write(0x00/* フレームのフラグ */)
                     it?.write(0x00/* フレームのフラグ */)
-                    it?.write(0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */)
+                    it?.write(0x00/* テキストのフレームの文字コード。ISO-8859-1は16進数で00。 */)
 
-                    val imageMimetypeByteArray: ByteArray? = imageMimetype?.toByteArray(StandardCharsets.UTF_8)
+                    val imageMimetypeByteArray: ByteArray? = imageMimetype?.toByteArray(StandardCharsets.UTF_8) //UTF-8はISO-8859-1を包含
 
                     for (index in 0..((imageMimetypeByteArray?.size ?: 0) - 1)) {
                         it?.write(imageMimetypeByteArray!![index].toInt())
