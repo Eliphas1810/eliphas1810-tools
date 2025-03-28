@@ -432,25 +432,41 @@ $("makeMP3File").onclick = function () {
     var album = $("album").value;
     var track = $("track").value;
 
-    var utf8TextEncoder = new TextEncoder();
 
-    var titleBinaryArray = utf8TextEncoder.encode(title);
-    var artistBinaryArray = utf8TextEncoder.encode(artist);
+    function UTF16TextEncoder() {
+        this.encode = function (string) {
+            var binaryArray = [];
+            if (string == null) {
+                return binaryArray;
+            }
+            var maxIndex = string.length - 1;
+            for (var index = 0; index <= maxIndex; index++) {
+                binaryArray.push((string.charCodeAt(index) >>> 8));
+                binaryArray.push((string.charCodeAt(index) << 8 >>> 8));
+            }
+            return binaryArray;
+        };
+    }
+    var utf16TextEncoder = new UTF16TextEncoder();
+
+
+    var titleBinaryArray = utf16TextEncoder.encode(title);
+    var artistBinaryArray = utf16TextEncoder.encode(artist);
 
     var albumBinaryArray = [];
     if (album != "") {
-        albumBinaryArray = utf8TextEncoder.encode(album);
+        albumBinaryArray = utf16TextEncoder.encode(album);
     }
 
-    var trackBinaryArray = utf8TextEncoder.encode(track);
+    var trackBinaryArray = utf16TextEncoder.encode(track);
 
     var headerSize = 0;
     headerSize += 10;
-    headerSize += (10 + 1 + titleBinaryArray.length);
-    headerSize += (10 + 1 + artistBinaryArray.length);
-    headerSize += (10 + 1 + trackBinaryArray.length);
+    headerSize += (10 + 1 + 2 + titleBinaryArray.length);
+    headerSize += (10 + 1 + 2 + artistBinaryArray.length);
+    headerSize += (10 + 1 + 2 + trackBinaryArray.length);
     if (album != "") {
-        headerSize += (10 + 1 + albumBinaryArray.length);
+        headerSize += (10 + 1 + 2 + albumBinaryArray.length);
     }
     if (1 <= imageUint8Array.length) {
         headerSize += (10 + 1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length);
@@ -468,7 +484,7 @@ $("makeMP3File").onclick = function () {
     byteIndex++;
     dataView.setUint8(byteIndex, 0x33/* 3 */, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, 0x04/* マイナーバージョン4 */, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, 0x03/* マイナーバージョン3 */, false/* ビッグ エンディアン */);
     byteIndex++;
     dataView.setUint8(byteIndex, 0x00/* パッチバージョン0 */, false/* ビッグ エンディアン */);
     byteIndex++;
@@ -491,19 +507,23 @@ $("makeMP3File").onclick = function () {
     byteIndex++;
     dataView.setUint8(byteIndex, 0x32/* 2 */, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + titleBinaryArray.length) >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + titleBinaryArray.length) << 8 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + titleBinaryArray.length) << 16 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + titleBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
-    byteIndex++;
-    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + titleBinaryArray.length) << 24 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
     dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0xFE/* UTF-16BEのBOM。1/2。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0xFF/* UTF-16BEのBOM。2/2。 */, false/* ビッグ エンディアン */);
     byteIndex++;
     for (var index = 0; index < titleBinaryArray.length; index++) {
         dataView.setUint8(byteIndex, titleBinaryArray[index], false/* ビッグ エンディアン */);
@@ -518,19 +538,23 @@ $("makeMP3File").onclick = function () {
     byteIndex++;
     dataView.setUint8(byteIndex, 0x31/* 1 */, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + artistBinaryArray.length) >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + artistBinaryArray.length) << 8 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + artistBinaryArray.length) << 16 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + artistBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
-    byteIndex++;
-    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + artistBinaryArray.length) << 24 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
     dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0xFE/* UTF-16BEのBOM。1/2。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0xFF/* UTF-16BEのBOM。2/2。 */, false/* ビッグ エンディアン */);
     byteIndex++;
     for (var index = 0; index < artistBinaryArray.length; index++) {
         dataView.setUint8(byteIndex, artistBinaryArray[index], false/* ビッグ エンディアン */);
@@ -545,19 +569,23 @@ $("makeMP3File").onclick = function () {
     byteIndex++;
     dataView.setUint8(byteIndex, 0x4B/* K */, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + trackBinaryArray.length) >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + trackBinaryArray.length) << 8 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + trackBinaryArray.length) << 16 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, (1 + trackBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
-    byteIndex++;
-    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, (1 + 2 + trackBinaryArray.length) << 24 >>> 24, false/* ビッグ エンディアン */);
     byteIndex++;
     dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
     byteIndex++;
-    dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+    dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0xFE/* UTF-16BEのBOM。1/2。 */, false/* ビッグ エンディアン */);
+    byteIndex++;
+    dataView.setUint8(byteIndex, 0xFF/* UTF-16BEのBOM。2/2。 */, false/* ビッグ エンディアン */);
     byteIndex++;
     for (var index = 0; index < trackBinaryArray.length; index++) {
         dataView.setUint8(byteIndex, trackBinaryArray[index], false/* ビッグ エンディアン */);
@@ -573,19 +601,23 @@ $("makeMP3File").onclick = function () {
         byteIndex++;
         dataView.setUint8(byteIndex, 0x42/* B */, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + 2 + albumBinaryArray.length) >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + 2 + albumBinaryArray.length) << 8 >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + 2 + albumBinaryArray.length) << 16 >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + albumBinaryArray.length) << 25 >>> 25, false/* ビッグ エンディアン */);
-        byteIndex++;
-        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + 2 + albumBinaryArray.length) << 24 >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
         dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0xFE/* UTF-16BEのBOM。1/2。 */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0xFF/* UTF-16BEのBOM。2/2。 */, false/* ビッグ エンディアン */);
         byteIndex++;
         for (var index = 0; index < albumBinaryArray.length; index++) {
             dataView.setUint8(byteIndex, albumBinaryArray[index], false/* ビッグ エンディアン */);
@@ -602,22 +634,22 @@ $("makeMP3File").onclick = function () {
         byteIndex++;
         dataView.setUint8(byteIndex, 0x43/* C */, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 4 >>> 25, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 11 >>> 25, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 8 >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 18 >>> 25, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 16 >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 25 >>> 25, false/* ビッグ エンディアン */);
-        byteIndex++;
-        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, (1 + imageMimetype.length + 1 + 1 + 1 + imageUint8Array.length) << 24 >>> 24, false/* ビッグ エンディアン */);
         byteIndex++;
         dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
         byteIndex++;
-        dataView.setUint8(byteIndex, 0x03/* テキストのフレームの文字コード。UTF-8は16進数で03。 */, false/* ビッグ エンディアン */);
+        dataView.setUint8(byteIndex, 0x00/* フレームのフラグ */, false/* ビッグ エンディアン */);
+        byteIndex++;
+        dataView.setUint8(byteIndex, 0x00/* テキストのフレームの文字コード。ISO-8859-1は16進数で00。 */, false/* ビッグ エンディアン */);
         byteIndex++;
         for (var index = 0; index < imageMimetype.length; index++) {
-            dataView.setUint8(byteIndex, utf8TextEncoder.encode(imageMimetype.charAt(index)), false/* ビッグ エンディアン */);
+            dataView.setUint8(byteIndex, new TextEncoder("utf-8"/* UTF-8はISO-8859-1を包含 */).encode(imageMimetype.charAt(index)), false/* ビッグ エンディアン */);
             byteIndex++;
         }
         dataView.setUint8(byteIndex, 0x00/* NULLの文字コード */, false/* ビッグ エンディアン */);
