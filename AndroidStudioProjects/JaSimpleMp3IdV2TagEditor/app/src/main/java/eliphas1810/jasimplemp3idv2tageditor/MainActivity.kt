@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity() {
                     } else if (minorVersion == 4 && encodingByte.toInt() == 0x02) {
                         charset = Charset.forName("UTF-16BE")
                     } else if (minorVersion == 4 && encodingByte.toInt() == 0x03) {
-                        charset = Charset.forName("utf-8")
+                        charset = Charset.forName("UTF-8")
                     } else {
                         Toast.makeText(applicationContext, getString(R.string.invalid_text_encoding_message) + " Minor Version: " + minorVersion + " Text Encoding Byte: " + encodingByte.toInt(), Toast.LENGTH_LONG).show()
                         return@registerForActivityResult
@@ -185,7 +185,7 @@ class MainActivity : AppCompatActivity() {
                     } else if (minorVersion == 4 && encodingByte.toInt() == 0x02) {
                         charset = Charset.forName("UTF-16BE")
                     } else if (minorVersion == 4 && encodingByte.toInt() == 0x03) {
-                        charset = Charset.forName("utf-8")
+                        charset = Charset.forName("UTF-8")
                     } else {
                         Toast.makeText(applicationContext, getString(R.string.invalid_text_encoding_message) + " Minor Version: " + minorVersion + " Text Encoding Byte: " + encodingByte.toInt(), Toast.LENGTH_LONG).show()
                         return@registerForActivityResult
