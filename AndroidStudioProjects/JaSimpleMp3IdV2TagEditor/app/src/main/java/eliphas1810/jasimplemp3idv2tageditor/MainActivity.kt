@@ -62,80 +62,80 @@ class MainActivity : AppCompatActivity() {
             imageByteArray = null
             mpegFrameByteArray = null
 
-            val id3: String = String(byteArray.sliceArray(0..2), StandardCharsets.UTF_8)
+            val id3 = String(byteArray.sliceArray(0..2), StandardCharsets.UTF_8)
             if (id3 != "ID3") {
                 mpegFrameByteArray = byteArray
                 return@registerForActivityResult
             }
 
-            val minorVersion: Int = byteArray[3].toInt()
+            val minorVersion: Int = (byteArray[3].toUInt() and 0xFFu).toInt()
             if (minorVersion <= 2 || 5 <= minorVersion) {
                 Toast.makeText(applicationContext, getString(R.string.not_support_version_message), Toast.LENGTH_LONG).show()
                 return@registerForActivityResult
             }
 
-            //int batchVersion = byteArray[4].toInt()
+            //val patchVersion: Int = (byteArray[4].toUInt() and 0xFFu).toInt()
 
-            val flag: Byte = byteArray[5]
-            val hasExHeader: Boolean = flag.and(0x02).toInt() != 0
-            var headerSize: Int = 0
-            headerSize += byteArray[6].toInt().shl(21)
-            headerSize += byteArray[7].toInt().shl(14)
-            headerSize += byteArray[8].toInt().shl(7)
-            headerSize += byteArray[9].toInt()
+            val flag: Int = (byteArray[5].toUInt() and 0xFFu).toInt()
+            val hasExHeader: Boolean = (flag and 0x02).toInt() != 0
+            var headerSize = 0
+            headerSize += (byteArray[6].toUInt() and 0xFFu shl 21).toInt()
+            headerSize += (byteArray[7].toUInt() and 0xFFu shl 14).toInt()
+            headerSize += (byteArray[8].toUInt() and 0xFFu shl 7).toInt()
+            headerSize += (byteArray[9].toUInt() and 0xFFu).toInt()
 
-            var byteIndex: Int = 10
+            var byteIndex = 10
 
             if (hasExHeader) {
-                var exHeaderSize: Int = 0
+                var exHeaderSize = 0
                 if (minorVersion == 3) {
-                    exHeaderSize += byteArray[10].toInt().shl(24)
-                    exHeaderSize += byteArray[11].toInt().shl(16)
-                    exHeaderSize += byteArray[12].toInt().shl(8)
-                    exHeaderSize += byteArray[13]
+                    exHeaderSize += (byteArray[10].toUInt() and 0xFFu shl 24).toInt()
+                    exHeaderSize += (byteArray[11].toUInt() and 0xFFu shl 16).toInt()
+                    exHeaderSize += (byteArray[12].toUInt() and 0xFFu shl 8).toInt()
+                    exHeaderSize += (byteArray[13].toUInt() and 0xFFu).toInt()
                 } else {
-                    exHeaderSize += byteArray[10].toInt().shl(21)
-                    exHeaderSize += byteArray[11].toInt().shl(14)
-                    exHeaderSize += byteArray[12].toInt().shl(7)
-                    exHeaderSize += byteArray[13]
+                    exHeaderSize += (byteArray[10].toUInt() and 0xFFu shl 21).toInt()
+                    exHeaderSize += (byteArray[11].toUInt() and 0xFFu shl 14).toInt()
+                    exHeaderSize += (byteArray[12].toUInt() and 0xFFu shl 7).toInt()
+                    exHeaderSize += (byteArray[13].toUInt() and 0xFFu).toInt()
                 }
                 byteIndex += exHeaderSize
             }
 
             while (byteIndex < headerSize) {
 
-                val frameId: String = String(byteArray.sliceArray(byteIndex..(byteIndex + 3)), StandardCharsets.UTF_8)
+                val frameId = String(byteArray.sliceArray(byteIndex..(byteIndex + 3)), StandardCharsets.UTF_8)
                 byteIndex += 4
 
                 if (byteIndex == 14 && frameId.matches(Regex("^[A-Z][A-Z][A-Z][A-Z0-9]$")) == false) {
                     byteIndex -= 4
-                    var exHeaderSize: Int = 0
+                    var exHeaderSize = 0
                     if (minorVersion == 3) {
-                        exHeaderSize += byteArray[10].toInt().shl(24)
-                        exHeaderSize += byteArray[11].toInt().shl(16)
-                        exHeaderSize += byteArray[12].toInt().shl(8)
-                        exHeaderSize += byteArray[13]
+                        exHeaderSize += (byteArray[10].toUInt() and 0xFFu shl 24).toInt()
+                        exHeaderSize += (byteArray[11].toUInt() and 0xFFu shl 16).toInt()
+                        exHeaderSize += (byteArray[12].toUInt() and 0xFFu shl 8).toInt()
+                        exHeaderSize += (byteArray[13].toUInt() and 0xFFu).toInt()
                     } else {
-                        exHeaderSize += byteArray[10].toInt().shl(21)
-                        exHeaderSize += byteArray[11].toInt().shl(14)
-                        exHeaderSize += byteArray[12].toInt().shl(7)
-                        exHeaderSize += byteArray[13]
+                        exHeaderSize += (byteArray[10].toUInt() and 0xFFu shl 21).toInt()
+                        exHeaderSize += (byteArray[11].toUInt() and 0xFFu shl 14).toInt()
+                        exHeaderSize += (byteArray[12].toUInt() and 0xFFu shl 7).toInt()
+                        exHeaderSize += (byteArray[13].toUInt() and 0xFFu).toInt()
                     }
                     byteIndex += exHeaderSize
                     continue
                 }
 
-                var frameSize: Int = 0
+                var frameSize = 0
                 if (minorVersion == 3) {
-                    frameSize += byteArray[byteIndex].toInt().shl(24)
-                    frameSize += byteArray[byteIndex + 1].toInt().shl(16)
-                    frameSize += byteArray[byteIndex + 2].toInt().shl(8)
-                    frameSize += byteArray[byteIndex + 3].toInt()
+                    frameSize += (byteArray[byteIndex].toUInt() and 0xFFu shl 24).toInt()
+                    frameSize += (byteArray[byteIndex + 1].toUInt() and 0xFFu shl 16).toInt()
+                    frameSize += (byteArray[byteIndex + 2].toUInt() and 0xFFu shl 8).toInt()
+                    frameSize += (byteArray[byteIndex + 3].toUInt() and 0xFFu).toInt()
                 } else {
-                    frameSize += byteArray[byteIndex].toInt().shl(21)
-                    frameSize += byteArray[byteIndex + 1].toInt().shl(14)
-                    frameSize += byteArray[byteIndex + 2].toInt().shl(7)
-                    frameSize += byteArray[byteIndex + 3].toInt()
+                    frameSize += (byteArray[byteIndex].toUInt() and 0xFFu shl 21).toInt()
+                    frameSize += (byteArray[byteIndex + 1].toUInt() and 0xFFu shl 14).toInt()
+                    frameSize += (byteArray[byteIndex + 2].toUInt() and 0xFFu shl 7).toInt()
+                    frameSize += (byteArray[byteIndex + 3].toUInt() and 0xFFu).toInt()
                 }
                 byteIndex += 4
 
@@ -145,22 +145,22 @@ class MainActivity : AppCompatActivity() {
 
                     val encodingByte: Byte = byteArray[byteIndex]
                     var charset: Charset? = null
-                    if (encodingByte.toInt() == 0x00) {
+                    if ((encodingByte.toUInt() and 0xFFu).toInt() == 0x00) {
                         //charset = Charset.forName("ISO-8859-1")
                         charset = Charset.forName("Windows-31J") //過去の日本語のアプリケーションにはISO-8859-1でWindowsの日本語のテキストを書き込んでいた物が有ったそうです。
-                    } else if (encodingByte.toInt() == 0x01) {
+                    } else if ((encodingByte.toUInt() and 0xFFu).toInt() == 0x01) {
                         charset = Charset.forName("UTF-16")
-                    } else if (minorVersion == 4 && encodingByte.toInt() == 0x02) {
+                    } else if (minorVersion == 4 && (encodingByte.toUInt() and 0xFFu).toInt() == 0x02) {
                         charset = Charset.forName("UTF-16BE")
-                    } else if (minorVersion == 4 && encodingByte.toInt() == 0x03) {
+                    } else if (minorVersion == 4 && (encodingByte.toUInt() and 0xFFu).toInt() == 0x03) {
                         charset = Charset.forName("UTF-8")
                     } else {
-                        Toast.makeText(applicationContext, getString(R.string.invalid_text_encoding_message) + " Minor Version: " + minorVersion + " Text Encoding Byte: " + encodingByte.toInt(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext, getString(R.string.invalid_text_encoding_message) + " Minor Version: " + minorVersion + " Text Encoding Byte: " + encodingByte.toUInt().toInt(), Toast.LENGTH_LONG).show()
                         return@registerForActivityResult
                     }
                     byteIndex += 1
 
-                    val content = String(byteArray.sliceArray(byteIndex..(byteIndex + frameSize - 2)), charset)
+                    val content = String(byteArray.sliceArray(byteIndex..(byteIndex + frameSize - 1 - 1)), charset)
                     byteIndex += (frameSize - 1)
 
                     if (frameId == "TIT2") {
@@ -177,28 +177,31 @@ class MainActivity : AppCompatActivity() {
 
                     val encodingByte: Byte = byteArray[byteIndex]
                     var charset: Charset? = null
-                    if (encodingByte.toInt() == 0x00) {
+                    if ((encodingByte.toUInt() and 0xFFu).toInt() == 0x00) {
                         //charset = Charset.forName("ISO-8859-1")
                         charset = Charset.forName("Windows-31J") //過去の日本語のアプリケーションにはISO-8859-1でWindowsの日本語のテキストを書き込んでいた物が有ったそうです。
-                    } else if (encodingByte.toInt() == 0x01) {
+                    } else if ((encodingByte.toUInt() and 0xFFu).toInt() == 0x01) {
                         charset = Charset.forName("UTF-16")
-                    } else if (minorVersion == 4 && encodingByte.toInt() == 0x02) {
+                    } else if (minorVersion == 4 && (encodingByte.toUInt() and 0xFFu).toInt() == 0x02) {
                         charset = Charset.forName("UTF-16BE")
-                    } else if (minorVersion == 4 && encodingByte.toInt() == 0x03) {
+                    } else if (minorVersion == 4 && (encodingByte.toUInt() and 0xFFu).toInt() == 0x03) {
                         charset = Charset.forName("UTF-8")
                     } else {
-                        Toast.makeText(applicationContext, getString(R.string.invalid_text_encoding_message) + " Minor Version: " + minorVersion + " Text Encoding Byte: " + encodingByte.toInt(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext, getString(R.string.invalid_text_encoding_message) + " Minor Version: " + minorVersion + " Text Encoding Byte: " + encodingByte.toUInt().toInt(), Toast.LENGTH_LONG).show()
                         return@registerForActivityResult
                     }
                     byteIndex += 1
 
                     val mimetypeByteList: MutableList<Byte> = mutableListOf()
-                    for (index in 0..(frameSize - 2)) {
+                    for (index in 0..(frameSize - 1 - 1)) {
                         val currentByte: Byte = byteArray[byteIndex + index]
-                        if (currentByte.toInt() == 0x00/* NULL */) {
+                        if (currentByte.toUInt().toInt() == 0x00/* NULL */) {
                             break
                         }
                         mimetypeByteList.add(currentByte)
+                    }
+                    if ((frameSize - 1) <= mimetypeByteList.size) {
+                        mimetypeByteList.clear()
                     }
                     imageMimetype = String(mimetypeByteList.toByteArray(), charset)
                     byteIndex += (mimetypeByteList.size + 1)
@@ -208,7 +211,7 @@ class MainActivity : AppCompatActivity() {
                     val descriptionList: MutableList<Byte> = mutableListOf()
                     for (index in 0..(frameSize - 1 - mimetypeByteList.size - 1 - 1 - 1)) {
                         val currentByte: Byte = byteArray[byteIndex + index]
-                        if (currentByte.toInt() == 0x00/* NULL */) {
+                        if (currentByte.toUInt().toInt() == 0x00/* NULL */) {
                             break
                         }
                         descriptionList.add(currentByte)
@@ -309,19 +312,19 @@ class MainActivity : AppCompatActivity() {
                 it?.write(0x03/* マイナーバージョン3 */)
                 it?.write(0x00/* パッチバージョン0 */)
                 it?.write(0x00/* ヘッダーのフラグ */)
-                it?.write(headerSize.shl(4).ushr(25))
-                it?.write(headerSize.shl(11).ushr(25))
-                it?.write(headerSize.shl(18).ushr(25))
-                it?.write(headerSize.shl(25).ushr(25))
+                it?.write(headerSize.toUInt().shl(4).toInt().ushr(25))
+                it?.write(headerSize.toUInt().shl(11).toInt().ushr(25))
+                it?.write(headerSize.toUInt().shl(18).toInt().ushr(25))
+                it?.write(headerSize.toUInt().shl(25).toInt().ushr(25))
 
                 it?.write(0x54/* T */)
                 it?.write(0x49/* I */)
                 it?.write(0x54/* T */)
                 it?.write(0x32/* 2 */)
                 it?.write((1 + titleByteArray.size).ushr(24))
-                it?.write((1 + titleByteArray.size).shl(8).ushr(24))
-                it?.write((1 + titleByteArray.size).shl(16).ushr(24))
-                it?.write((1 + titleByteArray.size).shl(24).ushr(24))
+                it?.write((1 + titleByteArray.size).toUInt().shl(8).toInt().ushr(24))
+                it?.write((1 + titleByteArray.size).toUInt().shl(16).toInt().ushr(24))
+                it?.write((1 + titleByteArray.size).toUInt().shl(24).toInt().ushr(24))
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
@@ -334,9 +337,9 @@ class MainActivity : AppCompatActivity() {
                 it?.write(0x45/* E */)
                 it?.write(0x31/* 1 */)
                 it?.write((1 + artistByteArray.size).ushr(24))
-                it?.write((1 + artistByteArray.size).shl(8).ushr(24))
-                it?.write((1 + artistByteArray.size).shl(16).ushr(24))
-                it?.write((1 + artistByteArray.size).shl(24).ushr(24))
+                it?.write((1 + artistByteArray.size).toUInt().shl(8).toInt().ushr(24))
+                it?.write((1 + artistByteArray.size).toUInt().shl(16).toInt().ushr(24))
+                it?.write((1 + artistByteArray.size).toUInt().shl(24).toInt().ushr(24))
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
@@ -349,9 +352,9 @@ class MainActivity : AppCompatActivity() {
                 it?.write(0x43/* C */)
                 it?.write(0x4B/* K */)
                 it?.write((1 + trackByteArray.size).ushr(24))
-                it?.write((1 + trackByteArray.size).shl(8).ushr(24))
-                it?.write((1 + trackByteArray.size).shl(16).ushr(24))
-                it?.write((1 + trackByteArray.size).shl(24).ushr(24))
+                it?.write((1 + trackByteArray.size).toUInt().shl(8).toInt().ushr(24))
+                it?.write((1 + trackByteArray.size).toUInt().shl(16).toInt().ushr(24))
+                it?.write((1 + trackByteArray.size).toUInt().shl(24).toInt().ushr(24))
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x00/* フレームのフラグ */)
                 it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
@@ -365,9 +368,9 @@ class MainActivity : AppCompatActivity() {
                     it?.write(0x4C/* L */)
                     it?.write(0x42/* B */)
                     it?.write((1 + albumByteArray.size).ushr(24))
-                    it?.write((1 + albumByteArray.size).shl(8).ushr(24))
-                    it?.write((1 + albumByteArray.size).shl(16).ushr(24))
-                    it?.write((1 + albumByteArray.size).shl(24).ushr(24))
+                    it?.write((1 + albumByteArray.size).toUInt().shl(8).toInt().ushr(24))
+                    it?.write((1 + albumByteArray.size).toUInt().shl(16).toInt().ushr(24))
+                    it?.write((1 + albumByteArray.size).toUInt().shl(24).toInt().ushr(24))
                     it?.write(0x00/* フレームのフラグ */)
                     it?.write(0x00/* フレームのフラグ */)
                     it?.write(0x01/* テキストのフレームの文字コード。BOM付きUTF-16は16進数で01。 */)
@@ -382,9 +385,9 @@ class MainActivity : AppCompatActivity() {
                     it?.write(0x49/* I */)
                     it?.write(0x43/* C */)
                     it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).ushr(24))
-                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(8).ushr(24))
-                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(16).ushr(24))
-                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).shl(24).ushr(24))
+                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).toUInt().shl(8).toInt().ushr(24))
+                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).toUInt().shl(16).toInt().ushr(24))
+                    it?.write((1 + (imageMimetype?.length ?: 0) + 1 + 1 + 1 + (imageByteArray?.size ?: 0)).toUInt().shl(24).toInt().ushr(24))
                     it?.write(0x00/* フレームのフラグ */)
                     it?.write(0x00/* フレームのフラグ */)
                     it?.write(0x00/* テキストのフレームの文字コード。ISO-8859-1は16進数で00。 */)
