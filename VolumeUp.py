@@ -13,7 +13,7 @@ file_string_var.set("")
 file_label = tkinter.Label(root, textvariable=file_string_var)
 file_label.place(x=10, y=40)
 
-# .htsvoiceファイル選択ボタンが押された時の処理
+# MP3ファイル選択ボタンが押された時の処理
 def select_file():
     file_path = filedialog.askopenfilename(title="MP3ファイル選択", multiple=False, filetypes=[("MP3", ".mp3")])
     file_string_var.set(file_path)
