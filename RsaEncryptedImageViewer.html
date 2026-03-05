@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>RSA暗号化画像ビューアー</title>
+        <style>
+img {
+    width: 500px;
+}
+        </style>
+    </head>
+    <body>
+        <div>
+            秘密鍵(Base64形式)　<input type="text" id="privateKeyBase64" />
+        </div>
+        <br />
+        <div>
+            RSA暗号化画像ファイル選択　<input type="file" id="file" multiple />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="show">RSA暗号化画像表示</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <div>
+            <button type="button" id="clear">クリア</button>
+        </div>
+        <br />
+        <br />
+        <div id="images"></div>
+
+
+        <script>
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+
+$("show").onclick = async function () {
+
+    if ($("privateKeyBase64").value == "") {
+        $("message").innerHTML = "秘密鍵(Base64形式)を記入してください。";
+        return;
+    }
+
+    var files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "RSA暗号化画像ファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "RSA暗号化画像ファイルを処理中です……。";
+
+    $("images").innerHTML = "";
+
+    var privateKey = await crypto.subtle.importKey(
+        "pkcs8",
+        Uint8Array.fromBase64($("privateKeyBase64").value),
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+        },
+        false,
+        ["decrypt"],
+    );
+
+    for (var index = 0; index < files.length; index++) {
+
+        var file = files[index];
+
+        var cipherTextArrayBuffer = await readAsArrayBufferSync(file);
+
+        //JavaScriptの「バイナリー文字列」
+        var jsBinaryString = "";
+
+        //RSA-OAEP 4096の場合、暗号文のサイズは512バイト(4096ビット)
+        var decryptableSize = 512;
+
+        var cipherTextByteSize = cipherTextArrayBuffer.byteLength;
+
+        var fromByteIndex = 0;
+        var toByteIndex = decryptableSize - 1;
+        if (cipherTextByteSize <= toByteIndex) {
+            toByteIndex = cipherTextByteSize - 1;
+        }
+        while (toByteIndex < cipherTextByteSize) {
+
+            var plainTextArrayBuffer = await crypto.subtle.decrypt(
+                {
+                    name: "RSA-OAEP",
+                },
+                privateKey,
+                cipherTextArrayBuffer.slice(fromByteIndex, toByteIndex + 1),
+            );
+
+            var plainTextSize = plainTextArrayBuffer.byteLength;
+            var plainTextDataView = new DataView(plainTextArrayBuffer);
+
+            for (var byteIndex = 0; byteIndex < plainTextSize; byteIndex++) {
+                jsBinaryString += String.fromCharCode((plainTextDataView.getUint8(byteIndex) >>> 0) & 0xff);
+            }
+
+            fromByteIndex = toByteIndex + 1;
+            toByteIndex = fromByteIndex + decryptableSize - 1;
+            if (cipherTextByteSize <= toByteIndex) {
+                if (cipherTextByteSize <= fromByteIndex) {
+                    break;
+                }
+                toByteIndex = cipherTextByteSize - 1;
+            }
+        }
+
+        var divElement = document.createElement("div");
+
+        var imageElement = document.createElement("img");
+
+        var fileName = file.name;
+        if (fileName.match(/[^a-z]png[^a-z]/gi) != null) {
+            imageElement.src = "data:image/png;base64," + btoa(jsBinaryString);
+        } else {
+            imageElement.src = "data:image/jpeg;base64," + btoa(jsBinaryString);
+        }
+
+        divElement.appendChild(imageElement);
+
+        $("images").appendChild(divElement);
+    }
+
+    $("message").innerHTML = "";
+};
+
+
+$("clear").onclick = function () {
+    $("privateKeyBase64").value = "";
+};
+
+        </script>
+    </body>
+</html>

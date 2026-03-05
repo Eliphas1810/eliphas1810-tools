@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>RSA復号化</title>
+    </head>
+    <body>
+        <div>
+            秘密鍵(Base64形式)　<input type="text" id="privateKeyBase64" />
+        </div>
+        <br />
+        <div>
+            RSA復号化ファイル選択　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="decrypt">RSA復号化</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <div>
+            <button type="button" id="clear">クリア</button>
+        </div>
+
+
+        <script>
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function readAsArrayBufferSync(file) {
+    return new Promise(function (resolve, reject) {
+        var fileReader = new FileReader();
+        fileReader.onload = function () { resolve(fileReader.result); };
+        fileReader.onerror = function () { reject(fileReader.error); };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+
+$("decrypt").onclick = async function () {
+
+    if ($("privateKeyBase64").value == "") {
+        $("message").innerHTML = "秘密鍵(Base64形式)を記入してください。";
+        return;
+    }
+
+    var files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "RSA復号化ファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "RSA復号化ファイルを処理中です……。";
+
+    var privateKey = await crypto.subtle.importKey(
+        "pkcs8",
+        Uint8Array.fromBase64($("privateKeyBase64").value),
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+        },
+        false,
+        ["decrypt"],
+    );
+
+    var file = files[0];
+
+    var outFileName = file.name;
+
+    if (outFileName.match(/^.+\.rsa\.bin$/gi) != null) {
+        outFileName = outFileName.replace(/\.rsa\.bin$/gi, "");
+    } else {
+        outFileName = outFileName.replace(/\.bin$/gi, "");
+    }
+
+    var cipherTextArrayBuffer = await readAsArrayBufferSync(file);
+
+    var plainTextArrayBufferArray = [];
+
+    //RSA-OAEP 4096の場合、暗号文のサイズは512バイト(4096ビット)
+    var decryptableSize = 512;
+
+    var cipherTextByteSize = cipherTextArrayBuffer.byteLength;
+
+    var fromByteIndex = 0;
+    var toByteIndex = decryptableSize - 1;
+    if (cipherTextByteSize <= toByteIndex) {
+        toByteIndex = cipherTextByteSize - 1;
+    }
+    while (toByteIndex < cipherTextByteSize) {
+
+        var plainTextArrayBuffer = await crypto.subtle.decrypt(
+            {
+                name: "RSA-OAEP",
+            },
+            privateKey,
+            cipherTextArrayBuffer.slice(fromByteIndex, toByteIndex + 1),
+        );
+
+        plainTextArrayBufferArray.push(plainTextArrayBuffer);
+
+        fromByteIndex = toByteIndex + 1;
+        toByteIndex = fromByteIndex + decryptableSize - 1;
+        if (cipherTextByteSize <= toByteIndex) {
+            if (cipherTextByteSize <= fromByteIndex) {
+                break;
+            }
+            toByteIndex = cipherTextByteSize - 1;
+        }
+    }
+
+    var blob = new Blob(plainTextArrayBufferArray, {type: "application/octet-stream"});
+
+    var url = URL.createObjectURL(blob);
+
+    var aTagElement = document.createElement("a");
+    aTagElement.href = url;
+    aTagElement.download = outFileName;
+    aTagElement.click();
+
+    URL.revokeObjectURL(url);
+
+    $("message").innerHTML = "RSA復号化を完了しました。";
+};
+
+
+$("clear").onclick = function () {
+    $("privateKeyBase64").value = "";
+};
+
+        </script>
+    </body>
+</html>

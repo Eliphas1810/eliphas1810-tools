@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>RSA暗号鍵生成</title>
+    </head>
+    <body>
+        <div>
+            <button type="button" id="generateRsaKey">RSA暗号鍵生成</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <br />
+        <div>
+            公開鍵(Base64形式)　<input type="text" id="publicKeyBase64" />
+        </div>
+        <div>
+            <button type="button" id="copyPublicKeyBase64">公開鍵をクリップボードにコピー</button>
+        </div>
+        <br />
+        <div>
+            秘密鍵(Base64形式)　<input type="text" id="privateKeyBase64" />
+        </div>
+        <div>
+            <button type="button" id="copyPrivateKeyBase64">秘密鍵をクリップボードにコピー</button>
+        </div>
+        <br />
+        <br />
+        <div>
+            <button type="button" id="clear">クリア</button>
+        </div>
+
+
+        <script>
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+$("generateRsaKey").onclick = async function () {
+
+    var key = await crypto.subtle.generateKey(
+        {
+            name: "RSA-OAEP",
+            modulusLength: 4096,
+            publicExponent: new Uint8Array([1, 0, 1]),
+            hash: "SHA-256",
+        },
+        true,
+        ["encrypt", "decrypt"]
+    );
+
+    $("publicKeyBase64").value = new Uint8Array(await crypto.subtle.exportKey('spki', key.publicKey)).toBase64()
+
+    $("privateKeyBase64").value = new Uint8Array(await crypto.subtle.exportKey('pkcs8', key.privateKey)).toBase64()
+};
+
+
+$("copyPublicKeyBase64").onclick = function () {
+    navigator.clipboard.writeText($("publicKeyBase64").value);
+};
+
+$("copyPrivateKeyBase64").onclick = function () {
+    navigator.clipboard.writeText($("privateKeyBase64").value);
+};
+
+$("clear").onclick = function () {
+    $("publicKeyBase64").value = "";
+    $("privateKeyBase64").value = "";
+};
+
+        </script>
+    </body>
+</html>
