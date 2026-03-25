@@ -1227,7 +1227,7 @@ $("convertTextToOdt").onclick = async function () {
     stylesXmlBlob.name = "styles.xml";
     storedZip.add(stylesXmlBlob);
 
-    var blob = new Blob([await storedZip.zip()], {type: "application/zip"});
+    var blob = new Blob([await storedZip.zip()], {type: "application/vnd.oasis.opendocument.text"});
 
     var url = URL.createObjectURL(blob);
 

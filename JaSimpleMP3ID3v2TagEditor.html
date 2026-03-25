@@ -35,6 +35,9 @@ input {
         <p id="readMP3Message"></p>
         <br />
         <div>
+            <span class="label">音楽データ</span><span id="mp3FileName">なし</span>
+        </div>
+        <div>
             <span class="label">曲名</span><input type="text" id="title" />
         </div>
         <div>
@@ -109,6 +112,8 @@ $("readMP3File").onclick = async function () {
         $("readMP3Message").innerHTML = "MP3ファイルを選択してください。";
         return;
     }
+
+    $("mp3FileName").innerHTML = fileName;
 
     var arrayBuffer = await readAsArrayBufferSync(file);
     var size = arrayBuffer.byteLength;
