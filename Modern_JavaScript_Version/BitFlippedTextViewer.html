@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転テキストファイルの内容の表示</title>
+
+        <!-- This application is under the "Public Domain". -->
+
+    </head>
+    <body>
+        <div>
+            <span id="filesLabel">ビット反転テキストファイルを選択</span>　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="view">ビット反転テキストファイルの内容を表示</button>
+        </div>
+        <br />
+        <pre id="text"></pre>
+
+
+        <script>
+
+
+const escapeHtml = (string) => {
+    return string
+        .replaceAll(/&/g, "&amp;")
+        .replaceAll(/"/g, "&quot;")
+        .replaceAll(/'/g, "&#39;")
+        .replaceAll(/</g, "&lt;")
+        .replaceAll(/>/g, "&gt;")
+    ;
+};
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+$("view").onclick = async () => {
+
+    $("text").innerHTML = "";
+
+    const files = $("file").files;
+
+    if (files.length == 0) {
+        $("text").innerHTML = "テキストファイルを選択してください。";
+        return;
+    }
+
+    const file = files[0];
+
+    const arrayBuffer = await file.arrayBuffer();
+    const size = arrayBuffer.byteLength;
+    const dataView = new DataView(arrayBuffer);
+
+    for (let byteIndex = 0; byteIndex < size; byteIndex++) {
+        dataView.setUint8(byteIndex, (~ dataView.getUint8(byteIndex)) >>> 0, /* リトル エンディアン */ true);
+    }
+
+    const text = new TextDecoder().decode(new Uint8Array(arrayBuffer));
+
+    $("text").innerHTML = escapeHtml(text);
+};
+
+
+        </script>
+    </body>
+</html>

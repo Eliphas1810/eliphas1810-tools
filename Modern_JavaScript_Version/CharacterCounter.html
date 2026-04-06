@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>文字数カウンター</title>
+    </head>
+    <body>
+        <div>
+            ファイル選択　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="countCharacter">文字数カウント</button>
+        </div>
+        <br />
+        <br />
+        <p id="message"></p>
+
+
+        <script>
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+$("countCharacter").onclick = async () => {
+
+    const files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "文字数を数えるファイルを選択してください。";
+        return;
+    }
+
+    const file = files[0];
+
+    const text = await file.text();
+
+    $("message").innerHTML = text.length + "文字";
+};
+
+
+        </script>
+    </body>
+</html>

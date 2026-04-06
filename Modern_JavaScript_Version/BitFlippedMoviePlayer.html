@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転ループ動画プレイヤー</title>
+    </head>
+    <body>
+        <div>
+            ビット反転動画ファイル選択　<input type="file" id="file" multiple />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="showBitFlippedMovie">ビット反転ループ動画表示</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <div id="videos"></div>
+
+
+        <script>
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+$("showBitFlippedMovie").onclick = async () => {
+
+    const files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "ビット反転動画ファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "ビット反転動画ファイルを処理中です……。";
+
+    $("videos").innerHTML = "";
+
+    for (let index = 0; index < files.length; index++) {
+
+        const file = files[index];
+
+        const arrayBuffer = await file.arrayBuffer();
+        const size = arrayBuffer.byteLength;
+        const dataView = new DataView(arrayBuffer);
+
+        //ビット反転
+        for (let byteIndex = 0; byteIndex < size; byteIndex++) {
+            dataView.setUint8(byteIndex, (~ dataView.getUint8(byteIndex)) >>> 0, /* リトル エンディアン */ true);
+        }
+
+        const divElement = document.createElement("div");
+
+        const brElement = document.createElement("br");
+
+        const videoElement = document.createElement("video");
+
+        videoElement.width = "500";
+        //videoElement.loop = "loop";
+        videoElement.controls = "controls";
+        videoElement.src = "data:video/mp4;base64," + new Uint8Array(arrayBuffer).toBase64();
+
+        divElement.appendChild(brElement);
+        divElement.appendChild(videoElement);
+
+        $("videos").appendChild(divElement);
+    }
+
+    $("message").innerHTML = "";
+};
+
+
+        </script>
+    </body>
+</html>

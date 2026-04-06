@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>カタカナの抽出とレーベンシュタイン距離の計算</title>
+
+        <!-- Public Domain -->
+
+    </head>
+    <body>
+        <div>
+            <textarea id="text" cols="80" rows="10" placeholder="カタカナを抽出してレーベンシュタイン距離を計算したい文をここに記入してください。"></textarea>
+        </div>
+        <br />
+        <div>
+            表示する0以上1以下の正規化されたレーベンシュタイン距離の最大<input type="text" id="maxNormalizedLevenshteinDistanceToShow" value="0.3" />
+        </div>
+        <div>
+            <input type="range" id="maxNormalizedLevenshteinDistanceToShowSlider" min="0" max="100" value="30" step="1" style="width: 100%;" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="extractKatakana">カタカナを抽出してレーベンシュタイン距離を計算</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <div>
+            <textarea id="katakanaList" cols="80" rows="10" placeholder="抽出されたカタカナの全ての一覧がここに書き込まれます。"></textarea>
+        </div>
+        <br />
+        <div>
+            <textarea id="katakanaPairList" cols="80" rows="10" placeholder="レーベンシュタイン距離の順に、最も似ているカタカナの2つ1組から、カタカナの2つ1組の一覧がここに書き込まれます。"></textarea>
+        </div>
+        <br />
+        <br />
+        <div>
+            <button type="button" id="clear">文を消去する</button>
+        </div>
+
+
+        <script>
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+//レーベンシュタイン距離を計算
+const calculateLevenshteinDistance = (firstString, secondString) => {
+
+    const maxX = firstString.length;
+
+    const maxY = secondString.length;
+
+    const table = [];
+
+    for (let x = 0; x <= maxX; x++) {
+        table[x] = [];
+        table[x][0] = x;
+    }
+
+    for (let y = 0; y <= maxY; y++) {
+        table[0][y] = y;
+    }
+
+    for (let x = 1; x <= maxX; x++) {
+        for(let y = 1; y <= maxY; y++) {
+
+            let cost = null;
+            if (firstString.charAt(x - 1) == secondString.charAt(y - 1)) {
+                cost = 0;
+            } else {
+                cost = 1;
+            }
+
+            table[x][y] = Math.min(
+                table[x - 1][y] + 1,
+                table[x][y - 1] + 1,
+                table[x - 1][y - 1] + cost
+            );
+        }
+    }
+
+    return table[maxX][maxY];
+};
+
+
+//2つの文字の文字数のうち最大文字数で割って、0以上1以下に正規化されたレーベンシュタイン距離を計算
+const normalizeLevenshteinDistance = (firstString, secondString) => {
+
+    //レーベンシュタイン距離を計算
+    const levenshteinDistance = calculateLevenshteinDistance(firstString, secondString);
+
+    return (levenshteinDistance / Math.max(firstString.length, secondString.length));
+};
+
+
+$("maxNormalizedLevenshteinDistanceToShowSlider").onchange = () => {
+    $("maxNormalizedLevenshteinDistanceToShow").value = ($("maxNormalizedLevenshteinDistanceToShowSlider").value / 100);
+};
+
+
+$("extractKatakana").onclick = () => {
+
+    $("message").innerHTML = "";
+
+    $("katakanaList").value = "";
+
+    $("katakanaPairList").value = "";
+
+    if ($("maxNormalizedLevenshteinDistanceToShow").value.match("^[01]\\.?[0-9]*$") == null) {
+        $("message").innerHTML = "0以上1以下の実数を「表示する正規化されたレーベンシュタイン距離の最大」に記入してください。";
+        return;
+    }
+
+    const maxNormalizedLevenshteinDistanceToShow = parseFloat($("maxNormalizedLevenshteinDistanceToShow").value);
+
+    if (maxNormalizedLevenshteinDistanceToShow == NaN) {
+        $("message").innerHTML = "0以上1以下の実数を「表示する正規化されたレーベンシュタイン距離の最大」に記入してください。";
+        return;
+    }
+    if (maxNormalizedLevenshteinDistanceToShow < 0.0) {
+        $("message").innerHTML = "0以上1以下の実数を「表示する正規化されたレーベンシュタイン距離の最大」に記入してください。";
+        return;
+    }
+    if (1.0 < maxNormalizedLevenshteinDistanceToShow) {
+        $("message").innerHTML = "0以上1以下の実数を「表示する正規化されたレーベンシュタイン距離の最大」に記入してください。";
+        return;
+    }
+
+    const text = $("text").value;
+
+    let katakanaArray = [];
+
+    const wordArray = text.match(/[ァ-ヺー][ァ-ヺー 　]*/g);
+
+    if (wordArray == null) {
+        $("message").innerHTML = "";
+        return;
+    }
+
+    for (let wordIndex = 0; wordIndex < wordArray.length; wordIndex++) {
+        const word = wordArray[wordIndex];
+
+        katakanaArray.push(word);
+    }
+
+    katakanaArray = Array.from(new Set(katakanaArray));
+
+    katakanaArray.sort();
+
+    $("katakanaList").value = katakanaArray.join("\n");
+
+    const katakanaPairArray = [];
+
+    const maxFirstIndex = katakanaArray.length - 2;
+
+    const maxSecondIndex = katakanaArray.length - 1;
+
+    for (let firstIndex = 0; firstIndex <= maxFirstIndex; firstIndex++) {
+        const firstString = katakanaArray[firstIndex];
+
+        for (let secondIndex = firstIndex + 1; secondIndex <= maxSecondIndex; secondIndex++) {
+            const secondString = katakanaArray[secondIndex];
+
+            const normalizedLevenshteinDistance = normalizeLevenshteinDistance(firstString, secondString);
+
+            if (maxNormalizedLevenshteinDistanceToShow < normalizedLevenshteinDistance) {
+                continue;
+            }
+
+            katakanaPairArray.push({
+                "firstString": "" + firstString,
+                "secondString": "" + secondString,
+                "normalizedLevenshteinDistance": normalizedLevenshteinDistance - 0.0,
+                "toString": function () {
+                    return this.normalizedLevenshteinDistance + "\n" + this.firstString + "\n" + this.secondString;
+                }
+            });
+        }
+    }
+
+    const compare = (a, b) => {
+        if (a.normalizedLevenshteinDistance == b.normalizedLevenshteinDistance) {
+            return 0;
+        }
+        if (a.normalizedLevenshteinDistance < b.normalizedLevenshteinDistance) {
+            return -1;
+        }
+        return 1;
+    };
+    katakanaPairArray.sort(compare);
+
+    $("katakanaPairList").value = katakanaPairArray.join("\n\n");
+};
+
+
+$("clear").onclick = () => {
+    $("text").value = "";
+    $("katakanaList").value = "";
+    $("katakanaPairList").value = "";
+    $("message").innerHTML = "";
+};
+
+
+        </script>
+    </body>
+</html>

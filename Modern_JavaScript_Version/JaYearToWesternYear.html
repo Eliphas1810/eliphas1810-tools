@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>和暦 西暦 変換</title>
+    </head>
+    <body>
+        <div>
+            <input type="radio" name="jaEra" id="taisho"></input>大正
+            　
+            <input type="radio" name="jaEra" id="showa" checked="checked"></input>昭和
+            　
+            <input type="radio" name="jaEra" id="heisei"></input>平成
+            　
+            <input type="radio" name="jaEra" id="reiwa"></input>令和
+            　
+            <input type="radio" name="jaEra" id="western"></input>西暦
+            　
+            <input type="text" id="year" size="8"></input>年
+        </div>
+
+        <div id="message"></div>
+        <br />
+        <div>
+            <button type="button" id="convert">和暦 西暦 変換</button>
+        </div>
+        <br />
+        <div>
+            <input type="text" id="jaYear" size="10" readonly="readonly"></input>　<button type="button" id="copyJaYear">コピー</button>
+        </div>
+        <br />
+        <div>
+            <input type="text" id="westernYear" size="10" readonly="readonly"></input>　<button type="button" id="copyWesternYear">コピー</button>
+        </div>
+        <br />
+        <div>
+            <input type="text" id="westernYearAndJaYear" size="20" readonly="readonly"></input>　<button type="button" id="copyWesternYearAndJaYear">コピー</button>
+        </div>
+
+        <script>
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+$("convert").onclick = () => {
+
+    //エラーメッセージの表示を消去して初期化
+    $("message").innerHTML = "";
+
+    $("jaYear").value = "";
+    $("westernYear").value = "";
+    $("westernYearAndJaYear").value = "";
+
+    let year = $("year").value;
+
+    //年が0文字の場合
+    if (year == "") {
+        $("message").innerHTML = "数字を年に記入してください。";
+        return;
+    }
+
+    //年に全角数字が有る場合
+    if (year.match(/[０-９]/) != null) {
+
+        //全角数字を半角数字に置換
+        year = year
+            .replaceAll(/０/g, "0")
+            .replaceAll(/１/g, "1")
+            .replaceAll(/２/g, "2")
+            .replaceAll(/３/g, "3")
+            .replaceAll(/４/g, "4")
+            .replaceAll(/５/g, "5")
+            .replaceAll(/６/g, "6")
+            .replaceAll(/７/g, "7")
+            .replaceAll(/８/g, "8")
+            .replaceAll(/９/g, "9")
+        ;
+
+        $("year").value = year;
+    }
+
+    //年が1文字以上の(半角)数字ではない場合は、エラーメッセージを表示
+    if (year.match(/^[0-9]+$/) == null) {
+        $("message").innerHTML = "数字だけを年に記入してください。";
+        return;
+    }
+
+    year = year - 0; //数字を数値に変換
+
+    if (year <= 0) {
+        $("message").innerHTML = "1以上の数を年に記入してください。";
+        return;
+    }
+
+    //大正の場合
+    if ($("taisho").checked) {
+
+        if (15 < year) {
+            $("message").innerHTML = "15以下の数を年に記入してください。大正は15年までです。";
+            return;
+        }
+
+        const jaYear = year;
+        const westernYear = 1911 + year;
+
+        $("jaYear").value = "大正" + jaYear + "年";
+        $("westernYear").value = westernYear + "年";
+        $("westernYearAndJaYear").value = westernYear + "年(大正" + jaYear + "年)";
+
+        return;
+    }
+
+    //昭和の場合
+    if ($("showa").checked) {
+
+        if (64 < year) {
+            $("message").innerHTML = "64以下の数を年に記入してください。昭和は64年までです。";
+            return;
+        }
+
+        const jaYear = year;
+        const westernYear = 1925 + year;
+
+        $("jaYear").value = "昭和" + jaYear + "年";
+        $("westernYear").value = westernYear + "年";
+        $("westernYearAndJaYear").value = westernYear + "年(昭和" + jaYear + "年)";
+
+        return;
+    }
+
+    //平成の場合
+    if ($("heisei").checked) {
+
+        if (31 < year) {
+            $("message").innerHTML = "31以下の数を年に記入してください。平成は31年までです。";
+            return;
+        }
+
+        const jaYear = year;
+        const westernYear = 1988 + year;
+
+        $("jaYear").value = "平成" + jaYear + "年";
+        $("westernYear").value = westernYear + "年";
+        $("westernYearAndJaYear").value = westernYear + "年(平成" + jaYear + "年)";
+
+        return;
+    }
+
+    //令和の場合
+    if ($("reiwa").checked) {
+
+        const jaYear = year;
+        const westernYear = 2018 + year;
+
+        $("jaYear").value = "令和" + jaYear + "年";
+        $("westernYear").value = westernYear + "年";
+        $("westernYearAndJaYear").value = westernYear + "年(令和" + jaYear + "年)";
+
+        return;
+    }
+
+    //西暦の場合
+    if ($("western").checked) {
+
+        if (year <= 1911) {
+           $("message").innerHTML = "1912以上の数を年に記入してください。1911年(明治44年)以前の和暦には非対応です。";
+            return;
+        }
+
+        //1912年(大正1年)から1925年(大正14年)までの場合
+        if (year <= 1925) {
+
+            const jaYear = year - 1911;
+            const westernYear = year;
+
+            $("jaYear").value = "大正" + jaYear + "年";
+            $("westernYear").value = westernYear + "年";
+            $("westernYearAndJaYear").value = westernYear + "年(大正" + jaYear + "年)";
+
+            return;
+        }
+
+        //1926年(大正15年または昭和1年)の場合
+        if (year == 1926) {
+
+           $("message").innerHTML = "1926年1月1日から12月24日までは大正15年です。1926年12月25日は大正15年でもあり昭和1年でもあります。1926年12月26日から12月31日までは昭和1年です。";
+
+            const westernYear = year;
+
+            $("jaYear").value = "大正15年または昭和1年";
+            $("westernYear").value = westernYear + "年";
+            $("westernYearAndJaYear").value = westernYear + "年(大正15年または昭和1年)";
+
+            return;
+        }
+
+        //1927年(昭和2年)から1988年(昭和63年)までの場合
+        if (year <= 1988) {
+
+            const jaYear = year - 1925;
+            const westernYear = year;
+
+            $("jaYear").value = "昭和" + jaYear + "年";
+            $("westernYear").value = westernYear + "年";
+            $("westernYearAndJaYear").value = westernYear + "年(昭和" + jaYear + "年)";
+
+            return;
+        }
+
+        //1989年(昭和64年または平成1年)の場合
+        if (year == 1989) {
+
+           $("message").innerHTML = "1989年1月1日から1月7日までは昭和64年です。1989年1月8日から12月31日までは平成1年です。";
+
+            const westernYear = year;
+
+            $("jaYear").value = "昭和64年または平成1年";
+            $("westernYear").value = westernYear + "年";
+            $("westernYearAndJaYear").value = westernYear + "年(昭和64年または平成1年)";
+
+            return;
+        }
+
+        //1990年(平成2年)から2018年(平成30年)までの場合
+        if (year <= 2018) {
+
+            const jaYear = year - 1988;
+            const westernYear = year;
+
+            $("jaYear").value = "平成" + jaYear + "年";
+            $("westernYear").value = westernYear + "年";
+            $("westernYearAndJaYear").value = westernYear + "年(平成" + jaYear + "年)";
+
+            return;
+        }
+
+        //2019年(平成31年または令和1年)の場合
+        if (year == 2019) {
+
+           $("message").innerHTML = "2019年1月1日から4月30日までは平成31年です。2019年5月1日から12月31日までは令和1年です。";
+
+            const westernYear = year;
+
+            $("jaYear").value = "平成31年または令和1年";
+            $("westernYear").value = westernYear + "年";
+            $("westernYearAndJaYear").value = westernYear + "年(平成31年または令和1年)";
+
+            return;
+        }
+
+        //2020年(令和2年)以降の場合
+
+        const jaYear = year - 2018;
+        const westernYear = year;
+
+        $("jaYear").value = "令和" + jaYear + "年";
+        $("westernYear").value = westernYear + "年";
+        $("westernYearAndJaYear").value = westernYear + "年(令和" + jaYear + "年)";
+
+        return;
+    }
+};
+
+$("copyJaYear").onclick = () => {
+    navigator.clipboard.writeText($("jaYear").value);
+};
+
+$("copyWesternYear").onclick = () => {
+    navigator.clipboard.writeText($("westernYear").value);
+};
+
+$("copyWesternYearAndJaYear").onclick = () => {
+    navigator.clipboard.writeText($("westernYearAndJaYear").value);
+};
+
+        </script>
+    </body>
+</html>

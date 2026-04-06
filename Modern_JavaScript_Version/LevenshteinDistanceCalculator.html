@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>レーベンシュタイン距離の計算</title>
+    </head>
+    <body>
+        <div>
+            <input type="text" id="firstString" size="80"></input>
+        </div>
+        <br />
+        <div>
+            <input type="text" id="secondString" size="80"></input>
+        </div>
+        <br />
+        <div>
+            <button type="button" id="calculateLevenshteinDistance">レーベンシュタイン距離を計算</button>
+        </div>
+        <br />
+        <p id="message"></p>
+        <br />
+        <p>　レーベンシュタイン距離: <span id="levenshteinDistance"></span>
+        </p>
+        <br />
+        <p>　2つの文字の文字数のうち最大文字数で割って0以上1以下に正規化されたレーベンシュタイン距離: <span id="normalizedLevenshteinDistance"></span>
+        </p>
+        <br />
+        <p>　※レーベンシュタイン距離と、正規化されたレーベンシュタイン距離は、小さいほど、2つの文字は似ています。</p>
+
+
+        <script>
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+//レーベンシュタイン距離を計算
+const calculateLevenshteinDistance = (firstString, secondString) => {
+
+    const maxX = firstString.length;
+
+    const maxY = secondString.length;
+
+    const table = [];
+
+    for (let x = 0; x <= maxX; x++) {
+        table[x] = [];
+        table[x][0] = x;
+    }
+
+    for (let y = 0; y <= maxY; y++) {
+        table[0][y] = y;
+    }
+
+    for (let x = 1; x <= maxX; x++) {
+        for(let y = 1; y <= maxY; y++) {
+
+            let cost = null;
+            if (firstString.charAt(x - 1) == secondString.charAt(y - 1)) {
+                cost = 0;
+            } else {
+                cost = 1;
+            }
+
+            table[x][y] = Math.min(
+                table[x - 1][y] + 1,
+                table[x][y - 1] + 1,
+                table[x - 1][y - 1] + cost
+            );
+        }
+    }
+
+    return table[maxX][maxY];
+};
+
+
+//2つの文字の文字数のうち最大文字数で割って、0以上1以下に正規化されたレーベンシュタイン距離を計算
+const normalizeLevenshteinDistance = (firstString, secondString) => {
+
+    //レーベンシュタイン距離を計算
+    const levenshteinDistance = calculateLevenshteinDistance(firstString, secondString);
+
+    return (levenshteinDistance / Math.max(firstString.length, secondString.length));
+};
+
+
+$("calculateLevenshteinDistance").onclick = () => {
+
+    $("message").innerHTML = "";
+
+    $("levenshteinDistance").innerHTML = "";
+
+    $("normalizedLevenshteinDistance").innerHTML = "";
+
+    const firstString = $("firstString").value;
+    const secondString = $("secondString").value;
+
+    if (firstString.length <= 0 || secondString.length <= 0) {
+        $("message").innerHTML = "　1文字以上の2つの文字を入力してください。";
+        return;
+    }
+
+    $("levenshteinDistance").innerHTML = calculateLevenshteinDistance(firstString, secondString);
+
+    $("normalizedLevenshteinDistance").innerHTML = normalizeLevenshteinDistance(firstString, secondString);
+};
+
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転</title>
+    </head>
+    <body>
+        <div>
+            ファイル選択　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="flipBit">ビット反転</button>
+        </div>
+        <br />
+        <br />
+        <p id="message"></p>
+
+
+        <script>
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+$("flipBit").onclick = async () => {
+
+    const files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "ビット反転するファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "ビット反転中です……。";
+
+    const file = files[0];
+
+    let outFileName = file.name;
+
+    if (outFileName.match(/^.+\.bin$/gi) != null) {
+        outFileName = outFileName.replace(/\.bin$/gi, "");
+    } else {
+        outFileName = outFileName + ".bin";
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const size = arrayBuffer.byteLength;
+    const dataView = new DataView(arrayBuffer);
+
+    for (let byteIndex = 0; byteIndex < size; byteIndex++) {
+        dataView.setUint8(byteIndex, (~ dataView.getUint8(byteIndex)) >>> 0, /* リトル エンディアン */ true);
+    }
+
+    const blob = new Blob([new Uint8Array(arrayBuffer)], {type: "application/octet-stream"});
+
+    const url = URL.createObjectURL(blob);
+
+    const aTagElement = document.createElement("a");
+    aTagElement.href = url;
+    aTagElement.download = outFileName;
+    aTagElement.click();
+
+    URL.revokeObjectURL(url);
+
+    $("message").innerHTML = "ビット反転を完了しました。";
+};
+
+
+        </script>
+    </body>
+</html>
