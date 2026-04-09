@@ -163,6 +163,18 @@ const escapeXml = (string) => {
 };
 
 
+//deflate圧縮
+const deflateFile = async (file) => {
+    const compressionStream = new CompressionStream("deflate-raw");
+    //const blob = new Blob([object]);
+    //const readableStream = await blob.stream().pipeThrough(compressionStream);
+    const readableStream = await file.stream().pipeThrough(compressionStream);
+    const response = new Response(readableStream);
+    const arrayBuffer = await response.arrayBuffer();
+    return arrayBuffer;
+};
+
+
 const $ = (id) => {
     return document.getElementById(id);
 };
@@ -481,7 +493,7 @@ const crc32 = (uint8Array) => {
 };
 
 
-class StoredZip {
+class DeflateZip {
 
     fileArray = [];
 
@@ -531,14 +543,17 @@ class StoredZip {
             //ファイルの場合
             if (fileName.endsWith("/") == false) {
 
-                const fileContentArrayBuffer = await file.arrayBuffer();
-                const fileContentSize = fileContentArrayBuffer.byteLength;
+                //const fileContentArrayBuffer = await file.arrayBuffer();
+                //const fileContentSize = fileContentArrayBuffer.byteLength;
 
-                zipLocalFileHeaderStartIndex = zipLocalFileHeaderStartIndex + 30 + fileNameSize + fileContentSize;
+                const fileCompressedContentArrayBuffer = await deflateFile(file);
+                const fileCompressedContentSize = fileCompressedContentArrayBuffer.byteLength;
+
+                zipLocalFileHeaderStartIndex = zipLocalFileHeaderStartIndex + 30 + fileNameSize + fileCompressedContentSize;
 
                 zipCentralDirectoryHeaderTotalSize = zipCentralDirectoryHeaderTotalSize + 46 + fileNameSize;
 
-                zipFileSize = zipFileSize + 76 + (fileNameSize * 2) + fileContentSize;
+                zipFileSize = zipFileSize + 76 + (fileNameSize * 2) + fileCompressedContentSize;
 
             //ディレクトリの場合
             } else {
@@ -574,6 +589,10 @@ class StoredZip {
 
             const fileContentCrc32 = crc32(fileContentByteArray);
 
+            const fileCompressedContentArrayBuffer = await deflateFile(file);
+            const fileCompressedContentSize = fileCompressedContentArrayBuffer.byteLength;
+            const fileCompressedContentByteArray = new Uint8Array(fileCompressedContentArrayBuffer);
+
             //zipのローカル ファイル ヘッダー
             const zipLocalFileHeader = [
 
@@ -585,9 +604,10 @@ class StoredZip {
 
                 //当zipの展開に必要な最小バージョン
                 //
-                //バージョン1.0は16進数表記で順に0A、00。
+                //無圧縮のSTOREDのバージョン1.0は16進数表記で順に0A、00。
+                //deflate圧縮可能なバージョン2.0は16進数表記で順に14、00。
                 //
-                0x0A,
+                0x14,
                 0x00,
 
                 //当zipの汎用ビット フラグ
@@ -600,8 +620,9 @@ class StoredZip {
                 //当zipの圧縮方法
                 //
                 //無圧縮のzipのSTOREDは16進数表記で順に00、00。
+                //deflate圧縮は16進数表記で順に08、00。
                 //
-                0x00,
+                0x08,
                 0x00,
 
                 //当zip内の当ファイルの最終更新時刻
@@ -625,10 +646,10 @@ class StoredZip {
                 //
                 //ディレクトリの場合は16進数表記で順に00、00、00、00。
                 //
-                ((fileContentSize << 24) >>> 24),
-                ((fileContentSize << 16) >>> 24),
-                ((fileContentSize << 8) >>> 24),
-                (fileContentSize >>> 24),
+                ((fileCompressedContentSize << 24) >>> 24),
+                ((fileCompressedContentSize << 16) >>> 24),
+                ((fileCompressedContentSize << 8) >>> 24),
+                (fileCompressedContentSize >>> 24),
 
                 //圧縮前の当zip内の当ファイルのファイル サイズ
                 //
@@ -665,8 +686,8 @@ class StoredZip {
             //ファイルの名前の最後の文字が半角スラッシュ記号ではない場合
             //
             if (fileName.endsWith("/") == false) {
-                for (let index = 0; index < fileContentByteArray.length; index++) {
-                    zipLocalFileHeader.push(fileContentByteArray[index]);
+                for (let index = 0; index < fileCompressedContentByteArray.length; index++) {
+                    zipLocalFileHeader.push(fileCompressedContentByteArray[index]);
                 }
             }
 
@@ -695,6 +716,10 @@ class StoredZip {
 
             const fileContentCrc32 = crc32(fileContentByteArray);
 
+            const fileCompressedContentArrayBuffer = await deflateFile(file);
+            const fileCompressedContentSize = fileCompressedContentArrayBuffer.byteLength;
+            const fileCompressedContentByteArray = new Uint8Array(fileCompressedContentArrayBuffer);
+
             //zipのセントラル ディレクトリ ヘッダー
             const zipCentralDirectoryHeader = [
 
@@ -705,7 +730,7 @@ class StoredZip {
                 0x02,
 
                 //当zipを作成したアプリケーションが対応可能なzipのバージョン
-                0x0A,
+                0x14,
 
                 //当zipを作成したOS
                 //
@@ -715,9 +740,10 @@ class StoredZip {
 
                 //当zipの展開に必要な最小バージョン
                 //
-                //バージョン1.0は16進数表記で順に0A、00。
+                //無圧縮のSTOREDのバージョン1.0は16進数表記で順に0A、00。
+                //deflate圧縮可能なバージョン2.0は16進数表記で順に14、00。
                 //
-                0x0A,
+                0x14,
                 0x00,
 
                 //当zipの汎用ビット フラグ
@@ -730,8 +756,9 @@ class StoredZip {
                 //当zipの圧縮方法
                 //
                 //無圧縮のzipのSTOREDは16進数表記で順に00、00。
+                //deflate圧縮は16進数表記で順に08、00。
                 //
-                0x00,
+                0x08,
                 0x00,
 
                 //当zip内の当ファイルの最終更新時刻
@@ -755,10 +782,10 @@ class StoredZip {
                 //
                 //ディレクトリの場合は16進数表記で順に00、00、00、00。
                 //
-                ((fileContentSize << 24) >>> 24),
-                ((fileContentSize << 16) >>> 24),
-                ((fileContentSize << 8) >>> 24),
-                (fileContentSize >>> 24),
+                ((fileCompressedContentSize << 24) >>> 24),
+                ((fileCompressedContentSize << 16) >>> 24),
+                ((fileCompressedContentSize << 8) >>> 24),
+                (fileCompressedContentSize >>> 24),
 
                 //圧縮前の当zip内の当ファイルのファイル サイズ
                 //
@@ -986,11 +1013,11 @@ $("makeEPub").onclick = async () => {
     }
 
 
-    const storedZip = new StoredZip();
+    const deflateZip = new DeflateZip();
 
     const mimetypeBlob = new Blob([new TextEncoder("utf-8").encode("application/epub+zip")]);
     mimetypeBlob.name = "mimetype";
-    storedZip.add(mimetypeBlob);
+    deflateZip.add(mimetypeBlob);
 
 
     const containerXmlBlob = new Blob([new TextEncoder("utf-8").encode([
@@ -1002,7 +1029,7 @@ $("makeEPub").onclick = async () => {
         '</container>\n'
     ].join("\n"))]);
     containerXmlBlob.name = "META-INF/container.xml";
-    storedZip.add(containerXmlBlob);
+    deflateZip.add(containerXmlBlob);
 
 
     const opfArray = [
@@ -1064,7 +1091,7 @@ $("makeEPub").onclick = async () => {
 
     const opfBlob = new Blob([new TextEncoder("utf-8").encode(opfArray.join("\n"))]);
     opfBlob.name = "opf.opf";
-    storedZip.add(opfBlob);
+    deflateZip.add(opfBlob);
 
 
     if (isVerticalWriting) {
@@ -1113,7 +1140,7 @@ $("makeEPub").onclick = async () => {
             "}\n"
         ].join("\n"))]);
         cssBlob.name = "common.css";
-        storedZip.add(cssBlob);
+        deflateZip.add(cssBlob);
 
     } else {
 
@@ -1149,7 +1176,7 @@ $("makeEPub").onclick = async () => {
             "}\n"
         ].join("\n"))]);
         cssBlob.name = "common.css";
-        storedZip.add(cssBlob);
+        deflateZip.add(cssBlob);
     }
 
     const navArray = [
@@ -1185,7 +1212,7 @@ $("makeEPub").onclick = async () => {
 
     const navBlob = new Blob([new TextEncoder("utf-8").encode(navArray.join("\n"))]);
     navBlob.name = "nav.xhtml";
-    storedZip.add(navBlob);
+    deflateZip.add(navBlob);
 
 
     //Image files is zipped.
@@ -1197,7 +1224,7 @@ $("makeEPub").onclick = async () => {
 
         const blob = new Blob([data]);
         blob.name = name;
-        storedZip.add(blob);
+        deflateZip.add(blob);
     }
 
 
@@ -1264,11 +1291,11 @@ $("makeEPub").onclick = async () => {
 
         const blob = new Blob([new TextEncoder("utf-8").encode(indexXhtmlArray.join("\n"))]);
         blob.name = "index" + (index + 1) + ".xhtml";
-        storedZip.add(blob);
+        deflateZip.add(blob);
     }
 
 
-    const blob = new Blob([await storedZip.zip()], {type: "application/epub+zip"});
+    const blob = new Blob([await deflateZip.zip()], {type: "application/epub+zip"});
 
     const url = URL.createObjectURL(blob);
 
