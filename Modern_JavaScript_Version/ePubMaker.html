@@ -163,18 +163,6 @@ const escapeXml = (string) => {
 };
 
 
-//deflate圧縮
-const deflateFile = async (file) => {
-    const compressionStream = new CompressionStream("deflate-raw");
-    //const blob = new Blob([object]);
-    //const readableStream = await blob.stream().pipeThrough(compressionStream);
-    const readableStream = await file.stream().pipeThrough(compressionStream);
-    const response = new Response(readableStream);
-    const arrayBuffer = await response.arrayBuffer();
-    return arrayBuffer;
-};
-
-
 const $ = (id) => {
     return document.getElementById(id);
 };
@@ -497,6 +485,21 @@ class DeflateZip {
 
     fileArray = [];
 
+    //deflate圧縮
+    async deflateFile(file) {
+        //一般的なdeflate圧縮の場合は、new CompressionStream("deflate")だが、
+        //zipファイル内のデータのdeflate圧縮の場合は、new CompressionStream("deflate-raw")
+        const compressionStream = new CompressionStream("deflate-raw");
+
+        //const blob = new Blob([object]);
+        //const readableStream = await blob.stream().pipeThrough(compressionStream);
+
+        const readableStream = await file.stream().pipeThrough(compressionStream);
+        const response = new Response(readableStream);
+        const arrayBuffer = await response.arrayBuffer();
+        return arrayBuffer;
+    }
+
     add(file) {
         this.fileArray.push(file);
     }
@@ -546,7 +549,7 @@ class DeflateZip {
                 //const fileContentArrayBuffer = await file.arrayBuffer();
                 //const fileContentSize = fileContentArrayBuffer.byteLength;
 
-                const fileCompressedContentArrayBuffer = await deflateFile(file);
+                const fileCompressedContentArrayBuffer = await this.deflateFile(file);
                 const fileCompressedContentSize = fileCompressedContentArrayBuffer.byteLength;
 
                 zipLocalFileHeaderStartIndex = zipLocalFileHeaderStartIndex + 30 + fileNameSize + fileCompressedContentSize;
@@ -589,7 +592,7 @@ class DeflateZip {
 
             const fileContentCrc32 = crc32(fileContentByteArray);
 
-            const fileCompressedContentArrayBuffer = await deflateFile(file);
+            const fileCompressedContentArrayBuffer = await this.deflateFile(file);
             const fileCompressedContentSize = fileCompressedContentArrayBuffer.byteLength;
             const fileCompressedContentByteArray = new Uint8Array(fileCompressedContentArrayBuffer);
 
@@ -716,7 +719,7 @@ class DeflateZip {
 
             const fileContentCrc32 = crc32(fileContentByteArray);
 
-            const fileCompressedContentArrayBuffer = await deflateFile(file);
+            const fileCompressedContentArrayBuffer = await this.deflateFile(file);
             const fileCompressedContentSize = fileCompressedContentArrayBuffer.byteLength;
             const fileCompressedContentByteArray = new Uint8Array(fileCompressedContentArrayBuffer);
 
