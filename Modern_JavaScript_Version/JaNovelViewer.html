@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>小説の内容の表示</title>
+
+        <!-- This application is under the "Public Domain". -->
+
+    </head>
+    <body>
+        <div>
+            <span id="filesLabel">小説のテキストファイルを選択</span>　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <span id="filesLabel">小説の中の画像ファイルを選択</span>　<input type="file" id="imageFile" accept=".jpeg, .jpg, .png" multiple />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="view">小説のテキストファイルの内容を表示</button>
+        </div>
+        <br />
+        <div>
+            <input type="range" id="fontSizeSlider" min="8" max="100" value="14" step="1" style="width: 100%; height: 100%;" />
+        </div>
+        <br />
+        <div>
+            <input type="range" id="lineHeightSlider" min="12" max="30" value="14" step="1" style="width: 100%; height: 100%;" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="changeDirection">縦書き</button>
+        </div>
+        <br />
+        <div id="text"></div>
+
+
+        <script>
+
+
+const escapeHtml = (string) => {
+    return string
+        .replaceAll(/&/g, "&amp;")
+        .replaceAll(/"/g, "&quot;")
+        .replaceAll(/'/g, "&#39;")
+        .replaceAll(/</g, "&lt;")
+        .replaceAll(/>/g, "&gt;")
+    ;
+};
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+$("view").onclick = async () => {
+
+    $("text").innerHTML = "";
+
+    const files = $("file").files;
+
+    const imageFiles = $("imageFile").files;
+
+    if (files.length == 0) {
+        $("text").innerHTML = "<p>小説のテキストファイルを選択してください。</p>";
+        return;
+    }
+
+    const file = files[0];
+
+    const text = await file.text();
+
+    const lineArray = text
+        .replaceAll(/\r\n/g, "\n")
+        .replaceAll(/\r/g, "\n")
+        .split("\n")
+    ;
+
+    const htmlArray = [];
+    for (let i = 0; i < lineArray.length; i++) {
+        const line = lineArray[i];
+
+        if (line.match(/^.+\.jpe?g$|^.+\.png$/gi) != null) {
+            for (imageFile of imageFiles) {
+                const imageFileName = imageFile.name;
+                if (imageFileName == line) {
+                    const arrayBuffer = await imageFile.arrayBuffer();
+                    if (imageFileName.match(/^.+\.png$/gi) != null) {
+                        htmlArray.push('            <img src="data:image/png;base64,' + new Uint8Array(arrayBuffer).toBase64() + '" />');
+                    } else {
+                        htmlArray.push('            <img src="data:image/jpeg;base64,' + new Uint8Array(arrayBuffer).toBase64() + '" />');
+                    }
+                }
+            }
+        } else if (line == "") {
+            htmlArray.push('            <p>　</p>');
+        } else {
+            let string = escapeHtml(line);
+
+            string = string.replaceAll(/([一-鿋々]+)\(([ぁ-ゖァ-ヺー]+)\)/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+            string = string.replaceAll(/｜([^《]+)《([^》]+)》/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+            string = string.replaceAll(/([一-鿋々]+)《([ぁ-ゖァ-ヺー]+)》/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+            htmlArray.push('            <p>' + string + '</p>');
+        }
+    }
+
+    $("text").innerHTML = htmlArray.join("\n");
+};
+
+
+let fontSize = $("fontSizeSlider").value;
+
+$("text").style.setProperty("font-size", fontSize + "pt");
+
+$("fontSizeSlider").onchange = () => {
+
+    fontSize = $("fontSizeSlider").value;
+
+    $("text").style.setProperty("font-size", fontSize + "pt");
+};
+
+
+let lineHeight = $("lineHeightSlider").value;
+
+$("text").style.setProperty("line-height", (lineHeight / 10));
+
+$("lineHeightSlider").onchange = () => {
+
+    lineHeight = $("lineHeightSlider").value;
+
+    $("text").style.setProperty("line-height", (lineHeight / 10));
+};
+
+
+let isVertical = false;
+
+$("changeDirection").onclick = () => {
+
+    const htmlTag = document.getElementsByTagName("html".toUpperCase())[0];
+
+    if (isVertical == false) {
+        htmlTag.style.setProperty("writing-mode", "vertical-rl");
+        htmlTag.style.setProperty("text-orientation", "mixed");
+        isVertical = true;
+
+        $("changeDirection").innerHTML = "横書き";
+
+    } else {
+        htmlTag.style.setProperty("writing-mode", "horizontal-tb");
+        htmlTag.style.setProperty("text-orientation", "mixed");
+        isVertical = false;
+
+        $("changeDirection").innerHTML = "縦書き";
+    }
+};
+
+
+        </script>
+    </body>
+</html>
