@@ -60,11 +60,16 @@ $("view").onclick = async () => {
 
     const files = $("file").files;
 
-    const imageFiles = $("imageFile").files;
-
     if (files.length == 0) {
         $("text").innerHTML = "<p>小説のテキストファイルを選択してください。</p>";
         return;
+    }
+
+    const imageFiles = $("imageFile").files;
+
+    const imageFileNameMap = new Map();
+    for (imageFile of imageFiles) {
+        imageFileNameMap.set(imageFile.name, imageFile);
     }
 
     const file = files[0];
@@ -82,16 +87,16 @@ $("view").onclick = async () => {
         const line = lineArray[i];
 
         if (line.match(/^.+\.jpe?g$|^.+\.png$/gi) != null) {
-            for (imageFile of imageFiles) {
-                const imageFileName = imageFile.name;
-                if (imageFileName == line) {
-                    const arrayBuffer = await imageFile.arrayBuffer();
-                    if (imageFileName.match(/^.+\.png$/gi) != null) {
-                        htmlArray.push('            <img src="data:image/png;base64,' + new Uint8Array(arrayBuffer).toBase64() + '" />');
-                    } else {
-                        htmlArray.push('            <img src="data:image/jpeg;base64,' + new Uint8Array(arrayBuffer).toBase64() + '" />');
-                    }
+            const imageFile = imageFileNameMap.get(line);
+            if (imageFile != null) {
+                const arrayBuffer = await imageFile.arrayBuffer();
+                if (line.match(/^.+\.png$/gi) != null) {
+                    htmlArray.push('            <img src="data:image/png;base64,' + new Uint8Array(arrayBuffer).toBase64() + '" />');
+                } else {
+                    htmlArray.push('            <img src="data:image/jpeg;base64,' + new Uint8Array(arrayBuffer).toBase64() + '" />');
                 }
+            } else {
+                htmlArray.push('            <p>' + line + '</p>');
             }
         } else if (line == "") {
             htmlArray.push('            <p>　</p>');
