@@ -2,7 +2,7 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8" />
-        <title>deflate zip圧縮ファイル ビューアー</title>
+        <title>ビット反転deflate zip圧縮ファイル ビューアー</title>
         <style>
 a {
     display: block;
@@ -20,11 +20,11 @@ img {
     </head>
     <body>
         <div>
-            deflate zip圧縮ファイル選択　<input type="file" id="file" />
+            ビット反転deflate zip圧縮ファイル選択　<input type="file" id="file" />
         </div>
         <br />
         <div>
-            <button type="button" id="inflateUnzip">deflate zip圧縮ファイルを表示</button>
+            <button type="button" id="inflateUnzip">ビット反転deflate zip圧縮ファイルを表示</button>
         </div>
         <br />
         <br />
@@ -237,11 +237,11 @@ $("inflateUnzip").onclick = async () => {
     const files = $("file").files;
 
     if (files.length == 0) {
-        $("message").innerHTML = "deflate zip圧縮ファイルを選択してください。";
+        $("message").innerHTML = "ビット反転deflate zip圧縮ファイルを選択してください。";
         return;
     }
 
-    $("message").innerHTML = "deflate zip圧縮ファイルを展開中です……。";
+    $("message").innerHTML = "ビット反転deflate zip圧縮ファイルを展開中です……。";
 
     $("files").innerHTML = "";
 
