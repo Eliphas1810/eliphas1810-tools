@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ビット反転deflate zip圧縮ファイル ビューアー</title>
+        <style>
+a {
+    display: block;
+    width: fit-content;
+}
+
+a:hover {
+    background-color: aqua;
+}
+
+img {
+    width: 100%;
+}
+        </style>
+    </head>
+    <body>
+        <div>
+            ビット反転deflate zip圧縮ファイル選択　<input type="file" id="file" />
+        </div>
+        <br />
+        <div>
+            <button type="button" id="inflateUnzip">ビット反転deflate zip圧縮ファイルを表示</button>
+        </div>
+        <br />
+        <br />
+        <p id="message"></p>
+        <br />
+        <div id="files"></div>
+
+
+        <script>
+
+
+const $ = (id) => {
+    return document.getElementById(id);
+};
+
+
+const escapeHtml = (string) => {
+    return string
+        .replaceAll(/&/g, "&amp;")
+        .replaceAll(/"/g, "&quot;")
+        .replaceAll(/'/g, "&#39;")
+        .replaceAll(/</g, "&lt;")
+        .replaceAll(/>/g, "&gt;")
+    ;
+};
+
+
+const unescapeHtml = (string) => {
+    return string
+        .replaceAll(/&quot;/g, '"')
+        .replaceAll(/&#39;/g, "'")
+        .replaceAll(/&lt;/g, "<")
+        .replaceAll(/&gt;/g, ">")
+        .replaceAll(/&amp;/g, "&")
+    ;
+};
+
+
+class BitFlippingInflateUnzip {
+
+
+    //deflate圧縮を展開
+    async inflate(fileDataArrayBuffer) {
+
+        //一般的なdeflate圧縮の展開の場合は、new DecompressionStream("deflate")だが、
+        //zipファイル内のデータのdeflate圧縮の展開の場合は、new DecompressionStream("deflate-raw")
+        const decompressionStream = new DecompressionStream("deflate-raw");
+
+        const blob = new Blob([fileDataArrayBuffer]);
+        const readableStream = await blob.stream().pipeThrough(decompressionStream);
+
+        const response = new Response(readableStream);
+        const arrayBuffer = await response.arrayBuffer();
+        return arrayBuffer;
+    }
+
+
+    async flipBitInflateUnzip(file) {
+
+        const zipFile = file;
+
+        const zipFileArrayBuffer = await zipFile.arrayBuffer();
+        const zipFileSize = zipFileArrayBuffer.byteLength;
+        const zipFileDataView = new DataView(zipFileArrayBuffer);
+
+
+        if (zipFileSize <= 4) {
+            throw new Error("zip圧縮ファイルではありません: " + zipFileSize + "バイト");
+        }
+
+
+        //ビット反転
+        for (let byteIndex = 0; byteIndex < zipFileSize; byteIndex++) {
+            zipFileDataView.setUint8(byteIndex, (~ zipFileDataView.getUint8(byteIndex)) >>> 0, /* リトル エンディアン */ true);
+        }
+
+
+        let zipEndOfCentralDirectoryRecordIndex = zipFileSize - 22;
+        for (; 0 <= zipEndOfCentralDirectoryRecordIndex; zipEndOfCentralDirectoryRecordIndex--) {
+            if (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex) != 0x50) {
+                continue;
+            }
+            if (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 1) != 0x4B) {
+                continue;
+            }
+            if (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 2) != 0x05) {
+                continue;
+            }
+            if (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 3) != 0x06) {
+                continue;
+            }
+
+            break;
+        }
+
+
+        if (zipEndOfCentralDirectoryRecordIndex <= 0) {
+            throw new Error("zipファイルではありません。zipのセントラル ディレクトリの終端レコードのシグネチャ(16進数で504B0506)が見つかりませんでした。");
+        }
+
+
+        const numberOfZipCentralDirectoryHeader = (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 11) << 8) + zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 10);
+
+        const zipCentralDirectoryHeaderStartIndex = (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 19) << 24) + (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 18) << 16) + (zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 17) << 8) + zipFileDataView.getUint8(zipEndOfCentralDirectoryRecordIndex + 16);
+
+        const fileObjectArray = [];
+
+        for (let index = zipCentralDirectoryHeaderStartIndex; index < zipFileSize;) {
+
+            const fileSize = (zipFileDataView.getUint8(index + 27) << 24) + (zipFileDataView.getUint8(index + 26) << 16) + (zipFileDataView.getUint8(index + 25) << 8) + zipFileDataView.getUint8(index + 24);
+
+            const fileNameSize = (zipFileDataView.getUint8(index + 29) << 8) + zipFileDataView.getUint8(index + 28);
+
+            const extraFieldSize = (zipFileDataView.getUint8(index + 31) << 8) + zipFileDataView.getUint8(index + 30);
+
+            const fileCommentSize = (zipFileDataView.getUint8(index + 33) << 8) + zipFileDataView.getUint8(index + 32);
+
+            const localFileHeaderStartIndex = (zipFileDataView.getUint8(index + 45) << 24) + (zipFileDataView.getUint8(index + 44) << 16) + (zipFileDataView.getUint8(index + 43) << 8) + zipFileDataView.getUint8(index + 42);
+
+            const fileObject = {
+                "fileSize": fileSize,
+                "localFileHeaderStartIndex": localFileHeaderStartIndex
+            };
+
+            fileObjectArray.push(fileObject);
+
+            if (numberOfZipCentralDirectoryHeader <= fileObjectArray.length) {
+                break;
+            }
+
+            index = index + 46 + fileNameSize + extraFieldSize + fileCommentSize;
+        }
+
+        for (let arrayIndex = 0; arrayIndex < fileObjectArray.length; arrayIndex++) {
+
+            const fileObject = fileObjectArray[arrayIndex];
+
+            const localFileHeaderStartIndex = fileObject.localFileHeaderStartIndex;
+
+            const generalPurposeBitFlag = (zipFileDataView.getUint8(localFileHeaderStartIndex + 7) << 8) + zipFileDataView.getUint8(localFileHeaderStartIndex + 6);
+
+            const compressionMethod = (zipFileDataView.getUint8(localFileHeaderStartIndex + 9) << 8) + zipFileDataView.getUint8(localFileHeaderStartIndex + 8);
+
+            const fileDataSize = (zipFileDataView.getUint8(localFileHeaderStartIndex + 21) << 24) + (zipFileDataView.getUint8(localFileHeaderStartIndex + 20) << 16) + (zipFileDataView.getUint8(localFileHeaderStartIndex + 19) << 8) + zipFileDataView.getUint8(localFileHeaderStartIndex + 18);
+
+            const fileNameSize = (zipFileDataView.getUint8(localFileHeaderStartIndex + 27) << 8) + zipFileDataView.getUint8(localFileHeaderStartIndex + 26);
+
+            const extraFieldSize = (zipFileDataView.getUint8(localFileHeaderStartIndex + 29) << 8) + zipFileDataView.getUint8(localFileHeaderStartIndex + 28);
+
+
+            const fileNameArrayBuffer = new ArrayBuffer(fileNameSize);
+            const fileNameDataView = new DataView(fileNameArrayBuffer);
+
+            for (let byteIndex = 0; byteIndex < fileNameSize; byteIndex++) {
+
+                fileNameDataView.setUint8(byteIndex, zipFileDataView.getUint8(localFileHeaderStartIndex + 30 + byteIndex), /* リトル エンディアン */ true);
+            }
+
+            //ファイル名の文字コードがUTF-8の場合
+            if ((generalPurposeBitFlag && 0b0000100000000000) != 0) {
+
+                const textDecoder = new TextDecoder("utf-8");
+                const fileName = textDecoder.decode(fileNameArrayBuffer);
+
+                fileObject.fileName = fileName;
+
+            //ファイル名の文字コードがUTF-8ではない場合
+            } else {
+
+                const textDecoder = new TextDecoder("shift-jis");
+                const fileName = textDecoder.decode(fileNameArrayBuffer);
+
+                fileObject.fileName = fileName;
+            }
+
+
+            const fileDataArrayBuffer = new ArrayBuffer(fileDataSize);
+            const fileDataView = new DataView(fileDataArrayBuffer);
+
+            for (let byteIndex = 0; byteIndex < fileDataSize; byteIndex++) {
+
+                fileDataView.setUint8(byteIndex, zipFileDataView.getUint8(localFileHeaderStartIndex + 30 + fileNameSize + extraFieldSize + byteIndex), /* リトル エンディアン */ true);
+            }
+
+            //無圧縮(STORED)の場合
+            if (compressionMethod == 0) {
+                fileObject.fileDataArrayBuffer = fileDataArrayBuffer;
+
+            //一般的なdeflate圧縮の場合
+            } else if (compressionMethod == 8) {
+                fileObject.fileDataArrayBuffer = await this.inflate(fileDataArrayBuffer);
+
+            } else {
+                throw new Error("無圧縮(STORED)と一般的なdeflate圧縮、以外には非対応です。zipファイルの圧縮方法(compression method)の数値: " + compressionMethod);
+            }
+        }
+
+        return fileObjectArray;
+    }
+}
+
+
+let fileObjectArray = [];
+
+
+$("inflateUnzip").onclick = async () => {
+
+    $("message").innerHTML = "";
+
+    const files = $("file").files;
+
+    if (files.length == 0) {
+        $("message").innerHTML = "ビット反転deflate zip圧縮ファイルを選択してください。";
+        return;
+    }
+
+    $("message").innerHTML = "ビット反転deflate zip圧縮ファイルを展開中です……。";
+
+    $("files").innerHTML = "";
+
+    const file = files[0];
+
+    const bitFlippingInflateUnzip = new BitFlippingInflateUnzip();
+
+    try {
+        fileObjectArray = await bitFlippingInflateUnzip.flipBitInflateUnzip(file);
+    } catch (error) {
+        fileObjectArray = [];
+        $("message").innerHTML = error.message;
+        return;
+    }
+
+    for (let index = 0; index < fileObjectArray.length; index++) {
+
+        const fileObject = fileObjectArray[index];
+
+
+        //ディレクトリの場合
+        if (fileObject.fileName.endsWith("/")) {
+            continue;
+        }
+        //ディレクトリの場合
+        if (fileObject.fileName.endsWith("\\")) {
+            continue;
+        }
+
+
+        const divElement = document.createElement("div");
+
+
+        const aElement = document.createElement("a");
+
+        aElement.onclick = (event) => {
+
+            const fileName = unescapeHtml("" + event.target.innerHTML);
+
+            let fileInfo = null;
+            for (let i = 0; i < fileObjectArray.length; i++) {
+
+                const fileInfomation = fileObjectArray[i];
+
+                if (fileInfomation.fileName == fileName) {
+                    fileInfo = fileInfomation;
+                    break;
+                }
+            }
+
+            const blob = new Blob([fileInfo.fileDataArrayBuffer], {type: "application/octet-stream"});
+
+            const url = URL.createObjectURL(blob);
+
+            const aTagElement = document.createElement("a");
+            aTagElement.href = url;
+            aTagElement.download = fileName.replaceAll(/\//g, "_").replaceAll(/\\/g, "_");
+            aTagElement.click();
+
+            URL.revokeObjectURL(url);
+        };
+
+        aElement.href = "javascript: void(0);";
+        aElement.innerHTML = escapeHtml(fileObject.fileName);
+
+        divElement.appendChild(aElement);
+
+
+        $("files").appendChild(document.createElement("br"));
+
+
+        if (fileObject.fileName.match(/[^a-z\/]png[^a-z\/]|[^a-z\/]png$/gi) != null) {
+
+            const imageElement = document.createElement("img");
+
+            imageElement.src = "data:image/png;base64," + new Uint8Array(fileObject.fileDataArrayBuffer).toBase64();
+
+            divElement.appendChild(imageElement);
+
+        } else if (fileObject.fileName.match(/[^a-z\/]jpe?g[^a-z\/]|[^a-z\/]jpe?g$/gi) != null) {
+
+            const imageElement = document.createElement("img");
+
+            imageElement.src = "data:image/jpeg;base64," + new Uint8Array(fileObject.fileDataArrayBuffer).toBase64();
+
+            divElement.appendChild(imageElement);
+
+        } else if (fileObject.fileName.match(/[^a-z\/]mp4[^a-z\/]|[^a-z\/]mp4$/gi) != null) {
+
+            const linkElement = document.createElement("a");
+
+            linkElement.onclick = (event) => {
+
+                const linkText = unescapeHtml("" + event.target.innerHTML);
+                const fileName = linkText.replaceAll(/を別ウィンドウで視聴$/g, "");
+
+                let fileInfo = null;
+                for (let i = 0; i < fileObjectArray.length; i++) {
+
+                    const fileInfomation = fileObjectArray[i];
+
+                    if (fileInfomation.fileName == fileName) {
+                        fileInfo = fileInfomation;
+                        break;
+                    }
+                }
+
+                const subWindow = window.open();
+
+                subWindow.document.body.innerHTML = '<video loop controls width="500" src="data:video/mp4;base64,' + new Uint8Array(fileInfo.fileDataArrayBuffer).toBase64() + '" />';
+
+                subWindow.focus();
+            };
+
+            linkElement.href = "javascript: void(0);";
+            linkElement.innerHTML = escapeHtml(fileObject.fileName + "を別ウィンドウで視聴");
+
+            divElement.appendChild(linkElement);
+
+        } else if (fileObject.fileName.match(/[^a-z\/]txt[^a-z\/]|[^a-z\/]txt$/gi) != null) {
+
+            const linkElement = document.createElement("a");
+
+            linkElement.onclick = (event) => {
+
+                const linkText = unescapeHtml("" + event.target.innerHTML);
+                const fileName = linkText.replaceAll(/を別ウィンドウで表示$/g, "");
+
+                let fileInfo = null;
+                for (let i = 0; i < fileObjectArray.length; i++) {
+
+                    const fileInfomation = fileObjectArray[i];
+
+                    if (fileInfomation.fileName == fileName) {
+                        fileInfo = fileInfomation;
+                        break;
+                    }
+                }
+
+                const subWindow = window.open();
+
+                const textDecoder = new TextDecoder("utf-8");
+
+                subWindow.document.body.innerHTML = '<pre style="width: 100%; white-space: pre-wrap;">' + escapeHtml(textDecoder.decode(fileInfo.fileDataArrayBuffer)) + '</pre>';
+
+                subWindow.focus();
+            };
+
+            linkElement.href = "javascript: void(0);";
+            linkElement.innerHTML = escapeHtml(fileObject.fileName + "を別ウィンドウで表示");
+
+            divElement.appendChild(linkElement);
+        }
+
+
+        $("files").appendChild(divElement);
+
+
+        $("files").appendChild(document.createElement("br"));
+        $("files").appendChild(document.createElement("br"));
+    }
+
+    $("message").innerHTML = "";
+};
+
+
+        </script>
+    </body>
+</html>
